@@ -487,6 +487,8 @@ var Table = Backbone.View.extend({
 
         // Render the table without blocking the UI thread
         _.delay(this.process_data, 2, args.data);
+        console.log("This is the data being rendered in table")
+        console.log(args.data)
     },
 
     clearOut: function() {
@@ -506,6 +508,9 @@ var Table = Backbone.View.extend({
     },
 
     process_data: function(data) {
+    	console.log("Processing data")
+        console.log(data)
+
         var hideEmptyRows = (Settings.HIDE_EMPTY_ROWS && this.workspace.query.getProperty('saiku.olap.query.nonempty'));
 
         this.workspace.processing.hide();

@@ -69,6 +69,8 @@ function getDomColumnsLevelsName(htmlObject) {
 }
 
 SaikuTableRenderer.prototype.render = function(data, options) {
+    	alert("Hello world, Bruno and 3golin are gonna start making some noise up here.. We saw that you requested a table ;)")
+
         var self = this;
         if (data) {
             this._data = data;
