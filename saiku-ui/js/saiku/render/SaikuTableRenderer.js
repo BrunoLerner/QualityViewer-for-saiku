@@ -741,11 +741,20 @@ SaikuTableRenderer.prototype.internalRender = function(allData, options) {
                     var img_width = header.properties.hasOwnProperty('image_width') ? " width='" + header.properties.image_width + "'" : "";
                     val = "<img " + img_height + " " + img_width + " style='padding-left: 5px' src='" + header.properties.image + "' border='0'>";
                 }
-
-                // Just apply formatting to non-empty cells
-                if (val !== '-' && val !== '' && header.properties.hasOwnProperty('style')) {
-                    color = " style='background-color: " + header.properties.style + "' ";
+                console.log("NEW VERSION ", val);
+                console.log(typeof val)
+                console.log(parseFloat(val))
+                var celValueAsFloat = parseFloat(val)
+                console.log(celValueAsFloat > 50)
+                if (celValueAsFloat > 50) {
+                  color = " style='background-color: green' ";
+                } else {
+                  color = " style='background-color: red' ";
                 }
+                // Just apply formatting to non-empty cells
+                // if (val !== '-' && val !== '' && header.properties.hasOwnProperty('style')) {
+                //     color = " style='background-color: " + header.properties.style + "' ";
+                // }
                 if (header.properties.hasOwnProperty('link')) {
                     val = "<a target='__blank' href='" + header.properties.link + "'>" + val + "</a>";
                 }
