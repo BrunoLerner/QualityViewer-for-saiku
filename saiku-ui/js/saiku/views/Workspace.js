@@ -42,7 +42,6 @@ var Workspace = Backbone.View.extend({
 
         // Generate toolbar and append to workspace
         this.toolbar = new WorkspaceToolbar({ workspace: this });
-        console.log(args);
         this.toolbar.render();
 
         this.upgrade = new Upgrade({ workspace: this});
@@ -55,11 +54,11 @@ var Workspace = Backbone.View.extend({
         this.drop_zones = new WorkspaceDropZone({ workspace: this });
         this.drop_zones.render();
 
-        console.log(Saiku.session.sessionworkspace);
-        console.log(this)
-        var qualityCube = Saiku.session.sessionworkspace.cube["earthquakes/Global Earthquakes/Global Earthquakes/Earthquakes"];
+        // console.log(Saiku.session.sessionworkspace);
+        // console.log(this.selected_cube)
+        // var qualityCube = Saiku.session.sessionworkspace.cube["earthquakes/Global Earthquakes/Global Earthquakes/Earthquakes"];
         // Generate table
-        this.table = new Table({ workspace: this, qualityMetrics: qualityCube });
+        this.table = new Table({ workspace: this/* , qualityMetrics: qualityCube */ });
 
         this.chart = new Chart({ workspace: this });
 
@@ -678,14 +677,18 @@ var Workspace = Backbone.View.extend({
         if (this.selected_cube) {
             // Create new DimensionList and MeasureList
             var cubeModel = Saiku.session.sessionworkspace.cube[this.selected_cube];
-            // this.selected_quality_cube = "Q-" + this.query.model.cube.connection + "/" +
-            //     "Q-" + this.query.model.cube.catalog + "/Q-" +
-            //     ((schema === "" || schema === null) ? "null" : schema) +
-            //     "/Q-" + encodeURIComponent(this.query.model.cube.name) /* + ")" */;
-            // console.log(this.selected_quality_cube);
-            // console.log(Saiku.session.sessionworkspace);
-            // var qualityCube = Saiku.session.sessionworkspace.cube[this.selected_quality_cube];
+            var showQuality = true;
 
+            if (showQuality){
+                var schema = this.query.model.cube.schema;
+                this.selected_quality_cube  = "Q-" + this.query.model.cube.connection + "/" +
+                "Q-" + this.query.model.cube.catalog + "/Q-" +
+                ((schema === "" || schema === null) ? "null" : schema) +
+                "/Q-" + encodeURIComponent(this.query.model.cube.name) /* + ")" */;
+                console.log(Saiku.session.sessionworkspace);
+                // var qualityCube = Saiku.session.sessionworkspace.cube[this.selected_quality_cube];
+            }
+            
             this.dimension_list = new DimensionList({
                 workspace: this,
                 cube: cubeModel

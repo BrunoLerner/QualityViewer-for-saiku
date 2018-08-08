@@ -28,7 +28,7 @@ var Table = Backbone.View.extend({
   initialize: function(args) {
     this.workspace = args.workspace;
     this.renderer = new SaikuTableRenderer();
-    this.qualityMetrics = args.qualityMetrics;
+    // this.qualityMetrics = args.qualityMetrics;
 
     // Bind table rendering to query result event
     _.bindAll(this, 'render', 'process_data', 'collapse', 'expand');
@@ -592,7 +592,10 @@ var Table = Backbone.View.extend({
     // Append the table
     this.clearOut();
     $(this.el).html('<table></table>');
-    console.log(this.qualityMetrics);
+    console.log(this.workspace.selected_quality_cube);
+    // var qualityCube = Saiku.session.sessionworkspace.cube[this.workspace.selected_quality_cube];
+    // console.log(qualityCube);
+
     var contents = this.renderer.render(data, {
       hideEmpty: hideEmptyRows,
       htmlObject: $(this.el).find('table'),

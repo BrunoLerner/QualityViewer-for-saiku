@@ -24,7 +24,7 @@ var SessionWorkspace = Backbone.Model.extend({
   initialize: function(args, options) {
     // Attach a custom event bus to this model
     _.extend(this, Backbone.Events);
-    _.bindAll(this, 'process_datasources', 'fetch_qualityCube', 'prefetch_dimensions');
+    _.bindAll(this, 'process_datasources', 'prefetch_dimensions');
     this.initialized = false;
     this.first = true;
     // Check expiration on localStorage
@@ -351,43 +351,43 @@ var SessionWorkspace = Backbone.Model.extend({
     }
   },
 
-  fetch_qualityCube: function() {
-    console.log('rodei');
-    for (var i = 0, iLen = this.connections.length; i < iLen; i++) {
-      var connection = this.connections[i];
+  //   fetch_qualityCube: function() {
+  //     console.log('rodei');
+  //     for (var i = 0, iLen = this.connections.length; i < iLen; i++) {
+  //       var connection = this.connections[i];
 
-      console.log(connection);
+  //       console.log(connection);
 
-      // for (var j = 0, jLen = connection.catalogs.length; j < jLen; j++) {
-      //   var catalog = connection.catalogs[j];
+  //       // for (var j = 0, jLen = connection.catalogs.length; j < jLen; j++) {
+  //       //   var catalog = connection.catalogs[j];
 
-      //   for (var k = 0, kLen = catalog.schemas.length; k < kLen; k++) {
-      //     var schema = catalog.schemas[k];
+  //       //   for (var k = 0, kLen = catalog.schemas.length; k < kLen; k++) {
+  //       //     var schema = catalog.schemas[k];
 
-      //     for (var l = 0, lLen = schema.cubes.length; l < lLen; l++) {
-      //       var cube = schema.cubes[l];
-      //       var key =
-      //                       connection.name +
-      //                       '/' +
-      //                       catalog.name +
-      //                       '/' +
-      //                       (schema.name === '' || schema.name === null ? 'null' : schema.name) +
-      //                       '/' +
-      //                       encodeURIComponent(cube.name);
+  //       //     for (var l = 0, lLen = schema.cubes.length; l < lLen; l++) {
+  //       //       var cube = schema.cubes[l];
+  //       //       var key =
+  //       //                       connection.name +
+  //       //                       '/' +
+  //       //                       catalog.name +
+  //       //                       '/' +
+  //       //                       (schema.name === '' || schema.name === null ? 'null' : schema.name) +
+  //       //                       '/' +
+  //       //                       encodeURIComponent(cube.name);
 
-      //       if (typeof localStorage !== 'undefined' && localStorage && localStorage.getItem('cube.' + key) !== null) {
-      //         this.cube[key] = new Cube(JSON.parse(localStorage.getItem('cube.' + key)));
-      //       }
-      //       else {
-      //         this.cube[key] = new Cube({ key: key });
-      //         if (Settings.DIMENSION_PREFETCH === true) {
-      //           this.cube[key].fetch();
-      //         }
-      //       }
-      //     }
-      //   }
-    }
-  },
+  //       //       if (typeof localStorage !== 'undefined' && localStorage && localStorage.getItem('cube.' + key) !== null) {
+  //       //         this.cube[key] = new Cube(JSON.parse(localStorage.getItem('cube.' + key)));
+  //       //       }
+  //       //       else {
+  //       //         this.cube[key] = new Cube({ key: key });
+  //       //         if (Settings.DIMENSION_PREFETCH === true) {
+  //       //           this.cube[key].fetch();
+  //       //         }
+  //       //       }
+  //       //     }
+  //       //   }
+  //     }
+  //   },
 
   url: function() {
     if (this.first) {
