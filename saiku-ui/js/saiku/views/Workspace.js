@@ -54,11 +54,8 @@ var Workspace = Backbone.View.extend({
         this.drop_zones = new WorkspaceDropZone({ workspace: this });
         this.drop_zones.render();
 
-        // console.log(Saiku.session.sessionworkspace);
-        // console.log(this.selected_cube)
-        // var qualityCube = Saiku.session.sessionworkspace.cube["earthquakes/Global Earthquakes/Global Earthquakes/Earthquakes"];
         // Generate table
-        this.table = new Table({ workspace: this/* , qualityMetrics: qualityCube */ });
+        this.table = new Table({ workspace: this });
 
         this.chart = new Chart({ workspace: this });
 
@@ -429,6 +426,13 @@ var Workspace = Backbone.View.extend({
             $(obj.el).find('.measure_tree').html('');
             return false;
         }
+        console.log(obj.selected_cube)
+        var showQuality = true;
+        if(showQuality){
+            var parsed_cube = obj.selected_cube.split('/');
+            obj.selected_cube_quality = this.get_quality_cube(parsed_cube[0]);
+        }
+
         obj.metadata = Saiku.session.sessionworkspace.cube[obj.selected_cube];
         var parsed_cube = obj.selected_cube.split('/');
         var cube = parsed_cube[3];
@@ -436,6 +440,16 @@ var Workspace = Backbone.View.extend({
             cube += "/" + parsed_cube[i];
         }
         Saiku.events.trigger("workspace:new_query", this, {view: this, cube: cube});
+
+        if(showQuality){
+            obj.metadata = Saiku.session.sessionworkspace.cube[obj.selected_cube_quality];
+            var parsed_cube_quality = obj.selected_cube_quality.split('/');
+            var cube_quality = parsed_cube_quality[3];
+            for (var i = 4, len = parsed_cube_quality.length; i < len; i++) {
+                cube_quality += "/" + parsed_cube_quality[i];
+            }
+            Saiku.events.trigger("workspace:new_query", this, {view: this, cube: cube_quality});
+        }
 
         this.query = new Query({
             cube: {
@@ -447,6 +461,20 @@ var Workspace = Backbone.View.extend({
         }, {
             workspace: obj
         });
+
+        if(showQuality){
+            this.query_quality = new Query({
+                cube: {
+                    connection: parsed_cube_quality[0],
+                    catalog: parsed_cube_quality[1],
+                    schema: (parsed_cube_quality[2] == "null" ? "" : parsed_cube_quality[2]) ,
+                    name: decodeURIComponent(cube_quality)
+                }
+            }, {
+                workspace: obj
+            });
+        }
+        
 
         if (!this.processedParamsURI) {
             var paramsURI = Saiku.URLParams.paramsURI();
@@ -565,7 +593,7 @@ var Workspace = Backbone.View.extend({
 
     cancel_new_query: function(args) {
         var selectedCube = args.selected_cube;
-
+        
         args.$el.find('#cubesselect option[value="' + selectedCube + '"]').prop('selected', true);
     },
 
@@ -680,13 +708,7 @@ var Workspace = Backbone.View.extend({
             var showQuality = true;
 
             if (showQuality){
-                var schema = this.query.model.cube.schema;
-                this.selected_quality_cube  = "Q-" + this.query.model.cube.connection + "/" +
-                "Q-" + this.query.model.cube.catalog + "/Q-" +
-                ((schema === "" || schema === null) ? "null" : schema) +
-                "/Q-" + encodeURIComponent(this.query.model.cube.name) /* + ")" */;
-                console.log(Saiku.session.sessionworkspace);
-                // var qualityCube = Saiku.session.sessionworkspace.cube[this.selected_quality_cube];
+                this.qualityCube = this.get_quality_cube();
             }
             
             this.dimension_list = new DimensionList({
@@ -718,6 +740,38 @@ var Workspace = Backbone.View.extend({
         Saiku.i18n.translate();
 
 
+    },
+
+    get_quality_cube: function(cube_name) {
+        for(var i = 0; i < Saiku.session.sessionworkspace.connections.length; i++){
+            var connection = Saiku.session.sessionworkspace.connections[i];
+            if (connection.name === "Q-" + cube_name){
+                for (var j = 0, jLen = connection.catalogs.length; j < jLen; j++) {
+                    var catalog = connection.catalogs[j];
+            
+                    for (var k = 0, kLen = catalog.schemas.length; k < kLen; k++) {
+                      var schema = catalog.schemas[k];
+            
+                      for (var l = 0, lLen = schema.cubes.length; l < lLen; l++) {
+                        var cube = schema.cubes[l];
+            
+                        var key_quality =
+                                        connection.name +
+                                        '/' +
+                                        catalog.name +
+                                        '/' +
+                                        (schema.name === '' || schema.name === null ? 'null' : schema.name) +
+                                        '/' +
+                                        encodeURIComponent(cube.name);
+            
+                        // var qualityCube = Saiku.session.sessionworkspace.cube[key_quality];
+                      }
+                    }
+                  }
+            }
+        }
+
+        return key_quality;
     },
 
     set_class_charteditor: function() {

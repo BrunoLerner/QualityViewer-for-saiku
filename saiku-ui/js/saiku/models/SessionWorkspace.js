@@ -111,7 +111,7 @@ var SessionWorkspace = Backbone.Model.extend({
               Saiku.tabs.add(new SplashScreen());
             }
             else if (!Settings.INITIAL_QUERY) {
-              Saiku.tabs.add(new Workspace({ connections: this.connections }));
+              Saiku.tabs.add(new Workspace({ connections: this }));
             }
           }
         }
@@ -176,7 +176,7 @@ var SessionWorkspace = Backbone.Model.extend({
           Saiku.tabs.add(new SplashScreen());
         }
         else if (!Settings.INITIAL_QUERY) {
-          Saiku.tabs.add(new Workspace({ connections: this.connections }));
+          Saiku.tabs.add(new Workspace({ connections: this }));
         }
         var globalreports = Settings.DEFAULT_REPORTS['_'];
         var rolereports = [];
@@ -240,7 +240,7 @@ var SessionWorkspace = Backbone.Model.extend({
                       Saiku.tabs.add(new SplashScreen());
                     }
                     else if (!Settings.INITIAL_QUERY) {
-                      Saiku.tabs.add(new Workspace({ connections: this.connections }));
+                      Saiku.tabs.add(new Workspace({ connections: this }));
                     }
                   }
                 }
@@ -266,7 +266,7 @@ var SessionWorkspace = Backbone.Model.extend({
               Saiku.tabs.add(new SplashScreen());
             }
             else if (!Settings.INITIAL_QUERY) {
-              Saiku.tabs.add(new Workspace({ connections: this.connections }));
+              Saiku.tabs.add(new Workspace({ connections: this }));
             }
           }
         }
@@ -295,7 +295,7 @@ var SessionWorkspace = Backbone.Model.extend({
           Saiku.tabs.add(new SplashScreen());
         }
         else if (!Settings.INITIAL_QUERY) {
-          Saiku.tabs.add(new Workspace({ connections: this.connections }));
+          Saiku.tabs.add(new Workspace({ connections: this }));
         }
         // if (!Settings.INITIAL_QUERY) {
         //    Saiku.tabs.add(new Workspace());
@@ -304,7 +304,7 @@ var SessionWorkspace = Backbone.Model.extend({
     }
     else {
       if (!Settings.INITIAL_QUERY) {
-        Saiku.tabs.add(new Workspace({ connections: this.connections }));
+        Saiku.tabs.add(new Workspace({ connections: this }));
       }
     }
   },
@@ -321,6 +321,7 @@ var SessionWorkspace = Backbone.Model.extend({
 
           for (var l = 0, lLen = schema.cubes.length; l < lLen; l++) {
             var cube = schema.cubes[l];
+
             var key =
 							connection.name +
 							'/' +

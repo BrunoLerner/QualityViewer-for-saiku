@@ -592,7 +592,7 @@ var Table = Backbone.View.extend({
     // Append the table
     this.clearOut();
     $(this.el).html('<table></table>');
-    console.log(this.workspace.selected_quality_cube);
+    console.log(this.workspace.qualityCube);
     // var qualityCube = Saiku.session.sessionworkspace.cube[this.workspace.selected_quality_cube];
     // console.log(qualityCube);
 

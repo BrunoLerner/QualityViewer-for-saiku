@@ -1,4 +1,4 @@
-/*  
+/*
  *   Copyright 2012 OSBI Ltd
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,47 +13,45 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
- 
+
 /**
  * Holds the resultset for a query, and notifies plugins when resultset updated
  */
 var Result = Backbone.Model.extend({
+  result: null,
+  firstRun: false,
 
-    result: null,
-    firstRun: false,
-    
-    initialize: function(args, options) {
-        // Keep reference to query
-        this.query = options.query;
-    },
-    
-    parse: function(response) {
-        // Show the UI if hidden
-        this.query.workspace.unblock();
-        this.query.workspace.processing.hide();
-        this.result = response;
-        if (!response.error) {
-            this.query.model = _.extend({}, response.query);
-        }
-        this.firstRun = true;
+  initialize: function(args, options) {
+    // Keep reference to query
+    this.query = options.query;
+  },
 
-        this.query.workspace.trigger('query:result', {
-            workspace: this.query.workspace,
-            data: response
-        });
-
-    },
-
-    hasRun: function() {
-        return this.firstRun;
-    },
-    
-    lastresult: function() {
-            return this.result;
-    },
-    
-    url: function() {
-        //return encodeURI(this.query.url() + "/result/" + this.query.getProperty('formatter'));
-        return "api/query/execute";
+  parse: function(response) {
+    // Show the UI if hidden
+    this.query.workspace.unblock();
+    this.query.workspace.processing.hide();
+    this.result = response;
+    if (!response.error) {
+      this.query.model = _.extend({}, response.query);
     }
+    this.firstRun = true;
+
+    this.query.workspace.trigger('query:result', {
+      workspace: this.query.workspace,
+      data: response
+    });
+  },
+
+  hasRun: function() {
+    return this.firstRun;
+  },
+
+  lastresult: function() {
+    return this.result;
+  },
+
+  url: function() {
+    // return encodeURI(this.query.url() + "/result/" + this.query.getProperty('formatter'));
+    return 'api/query/execute';
+  }
 });
