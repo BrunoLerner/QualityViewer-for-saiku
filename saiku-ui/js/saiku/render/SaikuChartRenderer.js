@@ -1164,7 +1164,11 @@ SaikuChartRenderer.prototype.drawRadarChart = function (o) {
                 .attr("y", function(d, i){ return i * 20;})
                 .attr("width", 10)
                 .attr("height", 10)
-                .style("fill", function(d, i){ return colorscale(i);});
+                .style("fill", function(d, i){ 
+                    var green = 75 + 180*i/150;
+                    var rgb = "rgb(0, " + green + ", 0)"
+                    return rgb;
+                });
 
 
             //Create text next to squares

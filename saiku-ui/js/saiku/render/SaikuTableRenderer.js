@@ -741,16 +741,12 @@ SaikuTableRenderer.prototype.internalRender = function(allData, options) {
                     var img_width = header.properties.hasOwnProperty('image_width') ? " width='" + header.properties.image_width + "'" : "";
                     val = "<img " + img_height + " " + img_width + " style='padding-left: 5px' src='" + header.properties.image + "' border='0'>";
                 }
-                console.log("NEW VERSION ", val);
-                console.log(typeof val)
-                console.log(parseFloat(val))
                 var celValueAsFloat = parseFloat(val)
-                console.log(celValueAsFloat > 50)
-                if (celValueAsFloat > 50) {
-                  color = " style='background-color: green' ";
-                } else {
-                  color = " style='background-color: red' ";
-                }
+                // var red = 255 - 255*val/150;
+                var green = 75 + 180*val/150;
+                if (/* red >= 0 && red <= 255 && */ green >= 0 && green <=255){
+                    color = " style='font-weight:bold;background-color: rgb(0, " + green + ", 0)' ";
+                }                
                 // Just apply formatting to non-empty cells
                 // if (val !== '-' && val !== '' && header.properties.hasOwnProperty('style')) {
                 //     color = " style='background-color: " + header.properties.style + "' ";

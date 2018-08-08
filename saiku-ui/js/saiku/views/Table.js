@@ -26,9 +26,9 @@ var Table = Backbone.View.extend({
   },
 
   initialize: function(args) {
-    alert('OLA new3');
     this.workspace = args.workspace;
     this.renderer = new SaikuTableRenderer();
+    this.qualityMetrics = args.qualityMetrics;
 
     // Bind table rendering to query result event
     _.bindAll(this, 'render', 'process_data', 'collapse', 'expand');
@@ -345,6 +345,7 @@ var Table = Backbone.View.extend({
             Saiku.session.sessionworkspace.cube[key].fetch({ async: false });
           }
           dimensions = Saiku.session.sessionworkspace.cube[key].get('data').dimensions;
+          console.log(dimensions);
         }
         var used_levels = [];
 
@@ -591,7 +592,7 @@ var Table = Backbone.View.extend({
     // Append the table
     this.clearOut();
     $(this.el).html('<table></table>');
-    console.log('calling renderer');
+    console.log(this.qualityMetrics);
     var contents = this.renderer.render(data, {
       hideEmpty: hideEmptyRows,
       htmlObject: $(this.el).find('table'),
