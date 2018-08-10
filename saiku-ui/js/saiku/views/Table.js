@@ -471,6 +471,7 @@ var Table = Backbone.View.extend({
                   self.workspace.query.helper.clearMeasures();
                   self.workspace.query.helper.includeMeasure(measure);
                   self.workspace.sync_query();
+                  console.log('aqui');
                   self.workspace.query.run();
                 }
                 else {
@@ -480,6 +481,7 @@ var Table = Backbone.View.extend({
                   });
                   hierarchy.levels[l_name].selection = { type: 'INCLUSION', members: updates };
                   self.workspace.drop_zones.synchronize_query();
+                  console.log('aqui');
                   self.workspace.query.run(true);
                 }
               }
@@ -506,6 +508,7 @@ var Table = Backbone.View.extend({
 
               self.workspace.query.helper.removeLevel(h, k);
               self.workspace.drop_zones.synchronize_query();
+              console.log('aqui');
               self.workspace.query.run(true);
             }
             else if (key.substring(0, key.indexOf('-')) === 'keep') {
@@ -523,6 +526,7 @@ var Table = Backbone.View.extend({
                 hierarchy.levels[l_caption].selection = { type: 'INCLUSION', members: updates };
                 self.workspace.query.helper.includeLevel(axis, h, k, null);
                 self.workspace.drop_zones.synchronize_query();
+                console.log('aqui');
                 self.workspace.query.run(true);
               }
             }
@@ -532,6 +536,7 @@ var Table = Backbone.View.extend({
 
               self.workspace.query.helper.includeLevel(axis, h, k, null);
               self.workspace.drop_zones.synchronize_query();
+              console.log('aqui');
               self.workspace.query.run(true);
             }
           },
@@ -592,10 +597,7 @@ var Table = Backbone.View.extend({
     // Append the table
     this.clearOut();
     $(this.el).html('<table></table>');
-    console.log(this.workspace.qualityCube);
-    // var qualityCube = Saiku.session.sessionworkspace.cube[this.workspace.selected_quality_cube];
-    // console.log(qualityCube);
-
+    // WHERE THE DATASET IS RENDERED
     var contents = this.renderer.render(data, {
       hideEmpty: hideEmptyRows,
       htmlObject: $(this.el).find('table'),

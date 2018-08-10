@@ -527,6 +527,15 @@ var Workspace = Backbone.View.extend({
                     'function': 'Filter',
                     'expressions': expressions
                 });
+                if(showQuality){
+                    this.query_quality.helper.removeFilter(a, 'Generic');
+                    a.filters.push({
+                        'flavour': 'Generic',
+                        'operator': null,
+                        'function': 'Filter',
+                        'expressions': expressions
+                    });
+                }
             }.bind(this);
 
             if (Saiku.URLParams.contains({ default_mdx_filter_rows: paramsURI.default_mdx_filter_rows })) {
@@ -545,11 +554,21 @@ var Workspace = Backbone.View.extend({
         }
 
         obj.query = this.query;
-
+        
         // Save the query to the server and init the UI
         obj.query.save({},{ data: { json: JSON.stringify(this.query.model) }, async: false });
         obj.init_query();
 
+        if(showQuality){
+            obj.query_quality = this.query_quality;
+            // Save the query to the server and init the UI
+            obj.query_quality.save({},{ data: { json: JSON.stringify(this.query_quality.model) }, async: false });
+            obj.init_query();
+        }
+        console.log("cube query:");
+        console.log(obj.query);
+        console.log("quality cube query:");
+        console.log(obj.query_quality);
     },
 
     extractDefaultFilters: function(p){
@@ -651,7 +670,13 @@ var Workspace = Backbone.View.extend({
         }
 
         if ((Settings.MODE == "table") && this.query) {
+            console.log("aqui");
             this.query.run(true);
+            return;
+        }
+        var showQuality = true;
+        if ((Settings.MODE == "table") && this.query_quality && showQuality) {
+            this.query_quality.run(true);
             return;
         }
 
@@ -677,6 +702,7 @@ var Workspace = Backbone.View.extend({
                 this.toggle_sidebar();
         }
         if ((Settings.MODE == "view") && this.query || this.isReadOnly) {
+            console.log("aqui");
             this.query.run(true);
             if (this.selected_cube === undefined) {
                 var schema = this.query.model.cube.schema;
@@ -687,6 +713,20 @@ var Workspace = Backbone.View.extend({
                 $(this.el).find('.cubes')
                     .val(this.selected_cube);
             }
+            return;
+        }
+
+        if (((Settings.MODE == "view") && this.query_quality || this.isReadOnly) && showQuality) {
+            this.query_quality.run(true);
+            // if (this.selected_cube === undefined) {
+            //     var schema = this.query.model.cube.schema;
+            //     this.selected_cube = this.query.model.cube.connection + "/" +
+            //         this.query.model.cube.catalog + "/" +
+            //         ((schema === "" || schema === null) ? "null" : schema) +
+            //         "/" + encodeURIComponent(this.query.model.cube.name);
+            //     $(this.el).find('.cubes')
+            //         .val(this.selected_cube);
+            // }
             return;
         }
 
@@ -708,7 +748,23 @@ var Workspace = Backbone.View.extend({
             var showQuality = true;
 
             if (showQuality){
-                this.qualityCube = this.get_quality_cube();
+                var parsed_cube = this.selected_cube.split('/');
+                var selected_qualityCube = this.get_quality_cube(parsed_cube[0]);
+                var cubeModel_quality = Saiku.session.sessionworkspace.cube[selected_qualityCube]
+                this.dimension_list_quality = new DimensionList({
+                    workspace: this,
+                    cube: cubeModel_quality
+                });
+                // this.dimension_list_quality.render();
+    
+                // $(this.el).find('.metadata_attribute_wrapper').html('').append($(this.dimension_list_quality.el));
+    
+                if (!cubeModel_quality.has('data')) {
+                    cubeModel_quality.fetch({ success: function() {
+                        self.trigger('cube:loaded');
+                    }});
+                }
+                this.trigger('query:new', { workspace: this });
             }
             
             this.dimension_list = new DimensionList({
@@ -735,11 +791,14 @@ var Workspace = Backbone.View.extend({
 
         // is this a new query?
         if (typeof isNew != "undefined") {
+            console.log("aqui");
             this.query.run(true);
         }
+
+        if (typeof isNew != "undefined" && showQuality) {
+            this.query_quality.run(true);
+        }
         Saiku.i18n.translate();
-
-
     },
 
     get_quality_cube: function(cube_name) {
@@ -888,6 +947,50 @@ var Workspace = Backbone.View.extend({
 
             }
         }
+
+
+        var model_quality = this.query_quality.helper.model();
+        if (model_quality.type === "QUERYMODEL") {
+
+            var self = this;
+            if(self.dimension_list_quality!=null){
+                var dimlist_q = dimension_el ? dimension_el : $(self.dimension_list_quality.el);
+            }
+            else{
+                var dimlist_q = dimension_el ? dimension_el : null;
+            }
+
+            if (!self.isReadOnly && (!Settings.hasOwnProperty('MODE') || (Settings.MODE != "table" && Settings.MODE != "view"))) {
+                dimlist_q.find('.selected').removeClass('selected');
+
+                var calcMeasures_q = self.query_quality.helper.getCalculatedMeasures();
+                //var calcMembers = self.query.helper.getCalculatedMembers();
+
+                if (calcMeasures_q && calcMeasures_q.length > 0) {
+                    var template_q = _.template($("#template-calculated-measures").html(),{ measures: calcMeasures_q });
+                    dimlist_q.find('.calculated_measures').html(template_q);
+                    dimlist_q.find('.calculated_measures').find('.measure').parent('li').draggable({
+                        cancel: '.not-draggable',
+                        connectToSortable: $(self.el).find('.fields_list_body.details ul.connectable'),
+                        helper: 'clone',
+                        placeholder: 'placeholder',
+                        opacity: 0.60,
+                        tolerance: 'touch',
+                        containment:    $(self.el),
+                        cursorAt: { top: 10, left: 35 }
+                    });
+                }
+                else {
+                    dimlist_q.find('.calculated_measures').empty();
+                }
+
+                // self.drop_zones.synchronize_query();
+
+            }
+        }
+
+        
+
         Saiku.i18n.translate();
     },
 

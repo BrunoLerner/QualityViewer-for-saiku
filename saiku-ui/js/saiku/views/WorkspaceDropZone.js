@@ -96,6 +96,7 @@ var WorkspaceDropZone = Backbone.View.extend({
         });
         this.workspace.query.helper.setMeasures(details);
         this.workspace.sync_query();
+        console.log("aqui");
         this.workspace.query.run();
 
     },
@@ -129,6 +130,7 @@ var WorkspaceDropZone = Backbone.View.extend({
 
             this.workspace.query.helper.removeHierarchy(hierarchy);
             this.workspace.sync_query();
+            console.log("aqui");
             this.workspace.query.run();
         }
     },
@@ -259,6 +261,7 @@ var WorkspaceDropZone = Backbone.View.extend({
             Saiku.session.trigger('workspaceDropZone:clear_axis', { workspace: this.workspace, axis: axisName });
 
             this.workspace.sync_query();
+            console.log("aqui");
             this.workspace.query.run();
             return false;
         }
@@ -309,6 +312,7 @@ var WorkspaceDropZone = Backbone.View.extend({
 
             $(ui.item).detach();
             this.workspace.sync_query();
+            console.log("aqui");
             self.workspace.query.run();
             Saiku.events.trigger("workspaceDropZone:select_dimension", this,
                 {level: level, uniquename: uniqueName, toAxis: toAxis, isNew: isNew, isCalc: isCalcMember, hierarchy:hierarchy});
@@ -450,7 +454,8 @@ var WorkspaceDropZone = Backbone.View.extend({
 							var axis = key.split('_')[1];
 							details.location = location;
 							details.axis = axis;
-						}
+                        }
+                        console.log("aqui");
 						query.run();
 					},
 					items: menuitems
@@ -691,6 +696,7 @@ var WorkspaceDropZone = Backbone.View.extend({
                                 $target.removeClass('on');
                                 self.workspace.query.helper.removeFilter(a, 'Generic');
                                 self.synchronize_query();
+                                console.log("aqui");
                                 self.workspace.query.run();
                             } else if (key == "customfilter") {
                                 save_custom = function(filterCondition) {
@@ -705,6 +711,7 @@ var WorkspaceDropZone = Backbone.View.extend({
                                             "expressions": expressions
                                         });
                                     self.synchronize_query();
+                                    console.log("aqui");
                                     self.workspace.query.run();
                                 };
 
@@ -731,6 +738,7 @@ var WorkspaceDropZone = Backbone.View.extend({
                                             "expressions": expressions
                                         });
                                     self.synchronize_query();
+                                    console.log("aqui");
                                     self.workspace.query.run();
                                 };
 
@@ -747,6 +755,7 @@ var WorkspaceDropZone = Backbone.View.extend({
                                 $target.removeClass('on');
                                 self.workspace.query.helper.removeFilter(a, 'N');
                                 self.synchronize_query();
+                                console.log("aqui");
                                 self.workspace.query.run();
                             } else if (key == "customtop") {
 
@@ -765,6 +774,7 @@ var WorkspaceDropZone = Backbone.View.extend({
                                             "expressions": expressions
                                         });
                                     self.synchronize_query();
+                                    console.log("aqui");
                                     self.workspace.query.run();
                                 };
 
@@ -783,6 +793,7 @@ var WorkspaceDropZone = Backbone.View.extend({
                                     a.sortOrder = sortO;
                                     a.sortEvaluationLiteral = sortL;
                                     self.synchronize_query();
+                                    console.log("aqui");
                                     self.workspace.query.run();
                                 };
 
@@ -797,6 +808,7 @@ var WorkspaceDropZone = Backbone.View.extend({
                                 a.sortOrder = null;
                                 a.sortEvaluationLiteral = null;
                                 self.synchronize_query();
+                                console.log("aqui");
                                 self.workspace.query.run();
                             } else if (key.indexOf("show_totals_") === 0){
                                 var total = key.substring("show_totals_".length);
@@ -840,7 +852,7 @@ var WorkspaceDropZone = Backbone.View.extend({
                                     a.aggregators = aggs;
                                 }
 
-
+                                console.log("aqui");
                                 self.workspace.query.run();
                             } else {
 
@@ -872,6 +884,7 @@ var WorkspaceDropZone = Backbone.View.extend({
                                         });
                                 }
                                 self.synchronize_query();
+                                console.log("aqui");
                                 self.workspace.query.run();
                             }
                     },
