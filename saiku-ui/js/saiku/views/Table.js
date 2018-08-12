@@ -563,6 +563,11 @@ var Table = Backbone.View.extend({
     if (args.data === null || (args.data.height && args.data.height === 0)) {
       return;
     }
+
+    if (args.data.query.cube.name.startsWith('Q-')) {
+      return;
+    }
+
     this.clearOut();
     $(this.el).html('Rendering ' + args.data.width + ' columns and ' + args.data.height + ' rows...');
 
@@ -597,15 +602,29 @@ var Table = Backbone.View.extend({
     // Append the table
     this.clearOut();
     $(this.el).html('<table></table>');
-    // WHERE THE DATASET IS RENDERED
-    var contents = this.renderer.render(data, {
-      hideEmpty: hideEmptyRows,
-      htmlObject: $(this.el).find('table'),
-      batch: Settings.TABLE_LAZY,
-      batchSize: Settings.TABLE_LAZY_SIZE,
-      batchIntervalSize: Settings.TABLE_LAZY_LOAD_ITEMS,
-      batchIntervalTime: Settings.TABLE_LAZY_LOAD_TIME
-    });
+
+    var showQuality = true;
+
+    if (showQuality) {
+      var contents = this.renderer.renderWithQuality(data, this.workspace.query_quality, {
+        hideEmpty: hideEmptyRows,
+        htmlObject: $(this.el).find('table'),
+        batch: Settings.TABLE_LAZY,
+        batchSize: Settings.TABLE_LAZY_SIZE,
+        batchIntervalSize: Settings.TABLE_LAZY_LOAD_ITEMS,
+        batchIntervalTime: Settings.TABLE_LAZY_LOAD_TIME
+      });
+    }
+    else {
+      var contents = this.renderer.render(data, {
+        hideEmpty: hideEmptyRows,
+        htmlObject: $(this.el).find('table'),
+        batch: Settings.TABLE_LAZY,
+        batchSize: Settings.TABLE_LAZY_SIZE,
+        batchIntervalSize: Settings.TABLE_LAZY_LOAD_ITEMS,
+        batchIntervalTime: Settings.TABLE_LAZY_LOAD_TIME
+      });
+    }
 
     this.post_process();
   },
