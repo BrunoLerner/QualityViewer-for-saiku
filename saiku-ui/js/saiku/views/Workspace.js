@@ -426,7 +426,6 @@ var Workspace = Backbone.View.extend({
             $(obj.el).find('.measure_tree').html('');
             return false;
         }
-        console.log(obj.selected_cube)
         var showQuality = true;
         if(showQuality){
             var parsed_cube = obj.selected_cube.split('/');
@@ -565,10 +564,10 @@ var Workspace = Backbone.View.extend({
             obj.query_quality.save({},{ data: { json: JSON.stringify(this.query_quality.model) }, async: false });
             obj.init_query();
         }
-        console.log("cube query:");
-        console.log(obj.query);
-        console.log("quality cube query:");
-        console.log(obj.query_quality);
+        // console.log("cube query:");
+        // console.log(obj.query);
+        // console.log("quality cube query:");
+        // console.log(obj.query_quality);
     },
 
     extractDefaultFilters: function(p){
@@ -746,7 +745,7 @@ var Workspace = Backbone.View.extend({
             // Create new DimensionList and MeasureList
             var cubeModel = Saiku.session.sessionworkspace.cube[this.selected_cube];
             var showQuality = true;
-
+            console.log(this)
             if (showQuality){
                 var parsed_cube = this.selected_cube.split('/');
                 var selected_qualityCube = this.get_quality_cube(parsed_cube[0]);
@@ -984,7 +983,7 @@ var Workspace = Backbone.View.extend({
                     dimlist_q.find('.calculated_measures').empty();
                 }
 
-                // self.drop_zones.synchronize_query();
+                self.drop_zones.synchronize_query();
 
             }
         }

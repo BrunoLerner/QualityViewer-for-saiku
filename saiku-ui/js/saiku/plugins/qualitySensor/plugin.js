@@ -1,6 +1,7 @@
 var QualitySensor = Backbone.Model.extend({
   initialize: function(args) {
     this.workspace = args.workspace;
+    this.workspace.showQuality = false;
     // Add quality sensor button
     if (document && document['addEventListener']) {
       this.add_button();
@@ -25,8 +26,11 @@ var QualitySensor = Backbone.Model.extend({
   onClickedButton: function() {
     console.log('clicked');
     // Change flag
+    this.workspace.showQuality = !this.workspace.showQuality;
     // Change color of button
+
     // Re run queries
+    this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
   }
 });
 

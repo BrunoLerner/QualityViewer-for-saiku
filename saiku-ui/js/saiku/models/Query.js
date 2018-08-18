@@ -181,8 +181,6 @@ var Query = Backbone.Model.extend({
         }
       }
     }
-    console.log('run triggered for ', this.model.cube.name);
-    console.log(errorMessage);
 
     if (!validated) {
       this.workspace.table.clearOut();
@@ -213,7 +211,6 @@ var Query = Backbone.Model.extend({
         delete this.model.queryModel.axes['FILTER'].name;
 */
     // console.log('query', JSON.stringify(exModel));
-    console.log('saving result for ', this.model.cube.name);
     this.result.save(
       {},
       {

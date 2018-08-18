@@ -548,6 +548,7 @@ var Table = Backbone.View.extend({
   },
 
   render: function(args, block) {
+    console.log(this.workspace)
     if (
       typeof args === 'undefined' ||
 			typeof args.data === 'undefined' ||
@@ -605,8 +606,8 @@ var Table = Backbone.View.extend({
 
     var showQuality = true;
 
-    if (showQuality) {
-      var contents = this.renderer.renderWithQuality(data, this.workspace.query_quality, {
+    if (this.workspace.showQuality) {
+      var contents = this.renderer.renderWithQuality(data, this.workspace, {
         hideEmpty: hideEmptyRows,
         htmlObject: $(this.el).find('table'),
         batch: Settings.TABLE_LAZY,

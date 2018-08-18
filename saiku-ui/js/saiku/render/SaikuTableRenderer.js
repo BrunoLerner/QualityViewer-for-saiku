@@ -742,16 +742,11 @@ SaikuTableRenderer.prototype.internalRender = function(allData, options) {
                     var img_width = header.properties.hasOwnProperty('image_width') ? " width='" + header.properties.image_width + "'" : "";
                     val = "<img " + img_height + " " + img_width + " style='padding-left: 5px' src='" + header.properties.image + "' border='0'>";
                 }
-                var celValueAsFloat = parseFloat(val)
-                // var red = 255 - 255*val/150;
-                var green = 75 + 180*val/150;
-                if (/* red >= 0 && red <= 255 && */ green >= 0 && green <=255){
-                    color = " style='font-weight:bold;background-color: rgb(0, " + green + ", 0)' ";
-                }                
+                              
                 // Just apply formatting to non-empty cells
-                // if (val !== '-' && val !== '' && header.properties.hasOwnProperty('style')) {
-                //     color = " style='background-color: " + header.properties.style + "' ";
-                // }
+                if (val !== '-' && val !== '' && header.properties.hasOwnProperty('style')) {
+                    color = " style='background-color: " + header.properties.style + "' ";
+                }
                 if (header.properties.hasOwnProperty('link')) {
                     val = "<a target='__blank' href='" + header.properties.link + "'>" + val + "</a>";
                 }
@@ -818,7 +813,7 @@ SaikuTableRenderer.prototype.internalRender = function(allData, options) {
     return "<table>" + tableContent + "</tbody></table>";
 };
 
-SaikuTableRenderer.prototype.renderWithQuality = function(data, qualityData, options){
+SaikuTableRenderer.prototype.renderWithQuality = function(data, workspace, options){
     var self = this;
     if (data) {
         this._data = data;
@@ -853,7 +848,7 @@ SaikuTableRenderer.prototype.renderWithQuality = function(data, qualityData, opt
                 self._options['batchSize'] = 1000;
             }
 
-            var html =  self.internalRenderWithQuality(self._data, qualityData, self._options);
+            var html =  self.internalRenderWithQuality(self._data, workspace, self._options);
             $(self._options.htmlObject).html(html);
             // Render the totals summary
             $('#totals_summary').remove(); // Remove one previous totals div, if present
@@ -898,12 +893,13 @@ SaikuTableRenderer.prototype.renderWithQuality = function(data, qualityData, opt
             return html;
         });
     } else {
-        var html =  this.internalRenderWithQuality(this._data, qualityData, self._options);
+        var html =  this.internalRenderWithQuality(this._data, workspace, self._options);
         return html;
     }
 }
 
-SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, qualityData, options) {
+SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, workspace, options) {
+    var qualityData = workspace.query_quality
     var tableContent = "";
     var rowContent = "";
     var data = allData.cellset;
@@ -1230,9 +1226,12 @@ SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, quali
                 }
                 var qualityMatrix = qualityData.result.result.cellset;
                 var celValueAsFloat = parseFloat(val)
-                if(row < 9 && col < 2) {
-                    color = this.getCellQualityColor(qualityMatrix[row][col].value);
+                if (workspace.showQuality){
+                    if(row < 9 && col < 2) {
+                        color = this.getCellQualityColor(qualityMatrix[row][col].value);
+                    }
                 }
+                
                 // Just apply formatting to non-empty cells
                 // if (val !== '-' && val !== '' && header.properties.hasOwnProperty('style')) {
                 //     color = " style='background-color: " + header.properties.style + "' ";
@@ -1304,7 +1303,6 @@ SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, quali
 };
 
 SaikuTableRenderer.prototype.getCellQualityColor = function(val) {
-    console.log(val);
     if(val !== undefined){
         // var green = 75 + 180*val/150;
         // if (/* red >= 0 && red <= 255 && */ green >= 0 && green <=255){
