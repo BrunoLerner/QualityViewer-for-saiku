@@ -187,6 +187,7 @@ var WorkspaceToolbar = Backbone.View.extend({
 
 
     run_query: function(event) {
+        console.log("aqui");
         this.workspace.query.run(true);
     },
 
@@ -294,6 +295,7 @@ var WorkspaceToolbar = Backbone.View.extend({
         } else {
             this.workspace.query.setProperty('saiku.olap.result.formatter', 'flat');
         }
+        console.log("aqui");
         this.workspace.query.run();
     },
 
@@ -308,6 +310,7 @@ var WorkspaceToolbar = Backbone.View.extend({
         $(event.target).toggleClass('on');
 
         // Run query
+        console.log("aqui");
         this.workspace.query.run();
     },
 
@@ -316,6 +319,7 @@ var WorkspaceToolbar = Backbone.View.extend({
         $(this.workspace.el).find('.workspace_results table').html('');
         this.workspace.query.helper.swapAxes();
         this.workspace.sync_query();
+        console.log("aqui");
         this.workspace.query.run(true);
     },
 
@@ -330,7 +334,7 @@ var WorkspaceToolbar = Backbone.View.extend({
         if (!$(source).hasClass('on')) {
             $(this.workspace.el).find("td.data").removeClass('cellhighlight').unbind('click');
             $(this.workspace.el).find(".table_mode").removeClass('on');
-
+            console.log("aqui");
             this.workspace.query.run();
         } else {
             if ($(source).hasClass('drillthrough_export')) {
@@ -364,7 +368,8 @@ var WorkspaceToolbar = Backbone.View.extend({
 							self.workspace.query.parse(response);
 							self.workspace.unblock();
 							self.workspace.sync_query();
-							Saiku.ui.unblock();
+                            Saiku.ui.unblock();
+                            console.log("aqui");
 							self.workspace.query.run();
 						},
 							data: { selections : JSON.stringify(positions) }
@@ -723,6 +728,7 @@ var WorkspaceToolbar = Backbone.View.extend({
         this.editor.resize();
         var mdx = this.editor.getValue();
         this.workspace.query.model.mdx = mdx;
+        console.log("aqui");
         this.workspace.query.run(true);
     },
 

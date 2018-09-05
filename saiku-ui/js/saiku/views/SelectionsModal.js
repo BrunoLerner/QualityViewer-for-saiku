@@ -694,6 +694,7 @@ var SelectionsModal = Modal.extend({
         $(this.el).find('.filterbox').autocomplete('destroy').remove();
         $(this.el).dialog('destroy');
         $(this.el).remove();
+        console.log("aqui");
         this.query.run();
     }
 });

@@ -731,6 +731,7 @@ SaikuTableRenderer.prototype.internalRender = function(allData, options) {
                 }
             } // If the cell is a normal data cell
             else if (header.type === "DATA_CELL") {
+                console.log(this)
                 batchStarted = true;
                 var color = "";
                 var val = _.isEmpty(header.value) ? Settings.EMPTY_VALUE_CHARACTER : header.value;
@@ -741,7 +742,7 @@ SaikuTableRenderer.prototype.internalRender = function(allData, options) {
                     var img_width = header.properties.hasOwnProperty('image_width') ? " width='" + header.properties.image_width + "'" : "";
                     val = "<img " + img_height + " " + img_width + " style='padding-left: 5px' src='" + header.properties.image + "' border='0'>";
                 }
-
+                              
                 // Just apply formatting to non-empty cells
                 if (val !== '-' && val !== '' && header.properties.hasOwnProperty('style')) {
                     color = " style='background-color: " + header.properties.style + "' ";
@@ -810,6 +811,514 @@ SaikuTableRenderer.prototype.internalRender = function(allData, options) {
         options['hasBatchResult'] = resultRows.length > 0;
     }
     return "<table>" + tableContent + "</tbody></table>";
+};
+
+SaikuTableRenderer.prototype.renderWithQuality = function(data, workspace, options){
+    var self = this;
+    if (data) {
+        this._data = data;
+    }
+    if (options) {
+        this._options = _.extend({}, SaikuRendererOptions, options);
+    }
+
+    if (typeof this._data == "undefined") {
+        return;
+    }
+
+    if (this._data != null && this._data.error != null) {
+        return;
+    }
+    if (this._data == null || (this._data.cellset && this._data.cellset.length === 0)) {
+        return;
+    }
+
+    this.hideEmpty = this._options.hideEmpty;
+
+    if (this._options.htmlObject) {
+//            $(this._options.htmlObject).stickyTableHeaders("destroy");
+
+        // in case we have some left over scrollers
+        if (self._options.hasOwnProperty('batch')) {
+            $(self._options.htmlObject).parent().parent().unbind('scroll');
+        }
+
+        _.defer(function(that) {
+            if (self._options.hasOwnProperty('batch') && !self._options.hasOwnProperty('batchSize')) {
+                self._options['batchSize'] = 1000;
+            }
+
+            var html =  self.internalRenderWithQuality(self._data, workspace, self._options);
+            $(self._options.htmlObject).html(html);
+            // Render the totals summary
+            $('#totals_summary').remove(); // Remove one previous totals div, if present
+            $(self._options.htmlObject).after(self.renderSummary(data)); // Render the new summary
+
+//                $(self._options.htmlObject).stickyTableHeaders( { container: self._options.htmlObject.parent().parent(), fixedOffset: self._options.htmlObject.parent().parent().offset().top });
+
+            _.defer(function(that) {
+                if (self._options.hasOwnProperty('batch') && self._options.hasBatchResult) {
+                    var batchRow = 0;
+                    var batchIsRunning = false;
+                    var batchIntervalSize = self._options.hasOwnProperty('batchIntervalSize') ? self._options.batchIntervalSize : 20;
+                    var batchIntervalTime = self._options.hasOwnProperty('batchIntervalTime') ? self._options.batchIntervalTime : 20;
+
+                    var len = self._options.batchResult.length;
+
+                    var batchInsert = function() {
+                        // maybe add check for reach table bottom - ($('.workspace_results').scrollTop() , $('.workspace_results table').height()
+                        if (!batchIsRunning && len > 0 && batchRow < len) {
+                            batchIsRunning = true;
+                            var batchContent = "";
+                            var startb = batchRow;
+                            for (var i = 0;  batchRow < len && i < batchIntervalSize ; i++, batchRow++) {
+                                batchContent += self._options.batchResult[batchRow];
+                            }
+                            if (batchRow > startb) {
+                                $(self._options.htmlObject).append( $(batchContent));
+                            }
+                            batchIsRunning = false;
+                        }
+                        if (batchRow >= len) {
+                            $(self._options.htmlObject).parent().parent().unbind('scroll');
+                        }
+                    };
+
+                    var lazyBatchInsert = _.debounce(batchInsert, batchIntervalTime);
+                    $(self._options.htmlObject).parent().parent().scroll(function () {
+                        lazyBatchInsert();
+                    });
+                }
+            });
+            return html;
+        });
+    } else {
+        var html =  this.internalRenderWithQuality(this._data, workspace, self._options);
+        return html;
+    }
+}
+
+SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, workspace, options) {
+    var qualityData = workspace.query_quality
+    var tableContent = "";
+    var rowContent = "";
+    var data = allData.cellset;
+
+    var newRowContent = '';
+    var arrRowData = [];
+    var objRowData = [];
+    var table = data ? data : [];
+    var colSpan;
+    var colValue;
+    var isHeaderLowestLvl;
+    var isBody = false;
+    var firstColumn;
+    var isLastColumn, isLastRow;
+    var nextHeader;
+    var processedRowHeader = false;
+    var lowestRowLvl = 0;
+    var rowGroups = [];
+    var batchSize = null;
+    var batchStarted = false;
+    var isColHeader = false, isColHeaderDone = false;
+    var resultRows = [];
+    var wrapContent = true;
+    if (options) {
+        batchSize = options.hasOwnProperty('batchSize') ? options.batchSize : null;
+        wrapContent = options.hasOwnProperty('wrapContent') ? options.wrapContent : true;
+    }
+    var totalsLists = {};
+    totalsLists[COLUMNS] = allData.rowTotalsLists;
+    totalsLists[ROWS] = allData.colTotalsLists;
+
+    var scanSums = {};
+    var scanIndexes = {};
+
+    var dirs = [ROWS, COLUMNS];
+
+    var hasMeasures = allData.query && allData.query.queryModel && allData.query.queryModel.details
+                   ? allData.query.queryModel.details.measures.length
+                   : 0;
+
+    if (typeof this._options.htmlObject === 'object' &&
+        Settings.ALLOW_AXIS_COLUMN_TITLE_TABLE &&
+        hasMeasures > 0 &&
+        allData.query.type === 'QUERYMODEL' &&
+        allData.query.queryModel.details.axis === 'COLUMNS' &&
+        allData.query.queryModel.details.location === 'BOTTOM') {
+
+        var arrColumnTitleTable = getAxisLevelsName(allData, COLUMNS);
+        var arrDomColumnTitleTable = getDomColumnsLevelsName(this._options.htmlObject);
+        var colspanColumnTitleTable = getAxisSize(allData, ROWS);
+        var auxColumnTitleTable = 0;
+
+        if (arrColumnTitleTable.length === arrDomColumnTitleTable.length) {
+            arrColumnTitleTable = arrDomColumnTitleTable;
+        }
+        else {
+            arrColumnTitleTable = _.intersection(arrDomColumnTitleTable, arrColumnTitleTable);
+        }
+    }
+
+    for (var i = 0; i < dirs.length; i++) {
+        scanSums[dirs[i]] = new Array();
+        scanIndexes[dirs[i]] = new Array();
+    }
+
+    // Here we cleaup the empty totals
+    cleanupTotals(dirs, totalsLists);
+
+    if (totalsLists[COLUMNS]) {
+        for (var i = 0; i < totalsLists[COLUMNS].length; i++) {
+            scanIndexes[COLUMNS][i] = 0;
+            scanSums[COLUMNS][i] = totalsLists[COLUMNS][i][scanIndexes[COLUMNS][i]].width;
+        }
+    }
+
+    for (var row = 0, rowLen = table.length; row < rowLen; row++) {
+        var rowShifted = row - allData.topOffset;
+        colSpan = 1;
+        colValue = "";
+        isHeaderLowestLvl = false;
+        isLastColumn = false;
+        isLastRow = false;
+        isColHeader = false;
+        var headerSame = false;
+
+        if (totalsLists[ROWS]) {
+            for (var i = 0; i < totalsLists[ROWS].length; i++) {
+                scanIndexes[ROWS][i] = 0;
+                scanSums[ROWS][i] = totalsLists[ROWS][i][scanIndexes[ROWS][i]].width;
+            }
+        }
+
+        rowWithOnlyEmptyCells = true;
+        rowContent = "<tr>";
+        var header = null;
+
+        if (row === 0) {
+            rowContent = "<thead>" + rowContent;
+        }
+
+        if (typeof this._options.htmlObject === 'object' &&
+            Settings.ALLOW_AXIS_COLUMN_TITLE_TABLE &&
+            hasMeasures > 0 &&
+            allData.query.type === 'QUERYMODEL' &&
+            allData.query.queryModel.details.axis === 'COLUMNS' &&
+            allData.query.queryModel.details.location === 'BOTTOM' &&
+            auxColumnTitleTable < arrColumnTitleTable.length) {
+
+            rowContent += '<th class="row_header" style="text-align: right;" colspan="' + colspanColumnTitleTable + '" title="' + arrColumnTitleTable[auxColumnTitleTable] + '">'
+                + (wrapContent ? '<div>' + arrColumnTitleTable[auxColumnTitleTable] + '</div>' : arrColumnTitleTable[auxColumnTitleTable])
+                + '</th>';
+
+            auxColumnTitleTable += 1;
+        }
+
+        for (var col = 0, colLen = table[row].length; col < colLen; col++) {
+            var colShifted = col - allData.leftOffset;
+            header = data[row][col];
+
+            if (header.type === "COLUMN_HEADER") {
+                isColHeader = true;
+            }
+
+            // If the cell is a column header and is null (top left of table)
+            if (header.type === "COLUMN_HEADER" && header.value === "null" && (firstColumn == null || col < firstColumn)) {
+                if (((!Settings.ALLOW_AXIS_COLUMN_TITLE_TABLE || (Settings.ALLOW_AXIS_COLUMN_TITLE_TABLE && allData.query.queryModel.details.location !== 'BOTTOM')) || hasMeasures === 0) ||
+                    allData.query.type === 'MDX') {
+                    rowContent += '<th class="all_null">&nbsp;</th>';
+                }
+            } // If the cell is a column header and isn't null (column header of table)
+            else if (header.type === "COLUMN_HEADER") {
+                if (firstColumn == null) {
+                    firstColumn = col;
+                }
+                if (table[row].length == col+1)
+                    isLastColumn = true;
+                else
+                    nextHeader = data[row][col+1];
+
+
+                if (isLastColumn) {
+                    // Last column in a row...
+                    if (header.value == "null") {
+                        rowContent += '<th class="col_null">&nbsp;</th>';
+                    } else {
+                        if (totalsLists[ROWS])
+                            colSpan = totalsLists[ROWS][row + 1][scanIndexes[ROWS][row + 1]].span;
+                        rowContent += '<th class="col" style="text-align: center;" colspan="' + colSpan + '" title="' + header.value + '">'
+                            + (wrapContent ? '<div rel="' + row + ":" + col +'">' + header.value + '</div>' : header.value)
+                            + '</th>';
+                    }
+
+                } else {
+                    // All the rest...
+                    var groupChange = (col > 1 && row > 1 && !isHeaderLowestLvl && col > firstColumn) ?
+                        data[row-1][col+1].value != data[row-1][col].value || data[row-1][col+1].properties.uniquename != data[row-1][col].properties.uniquename
+                        : false;
+
+                    var maxColspan = colSpan > 999 ? true : false;
+                    if (header.value != nextHeader.value || nextParentsDiffer(data, row, col) || isHeaderLowestLvl || groupChange || maxColspan) {
+                        if (header.value == "null") {
+                            rowContent += '<th class="col_null" colspan="' + colSpan + '">&nbsp;</th>';
+                        } else {
+                            if (totalsLists[ROWS])
+                                colSpan = totalsLists[ROWS][row + 1][scanIndexes[ROWS][row + 1]].span;
+                            rowContent += '<th class="col" style="text-align: center;" colspan="' + (colSpan == 0 ? 1 : colSpan) + '" title="' + header.value + '">'
+                            + (wrapContent ? '<div rel="' + row + ":" + col +'">' + header.value + '</div>' : header.value)
+                            + '</th>';
+                        }
+                        colSpan = 1;
+                    } else {
+                        colSpan++;
+                    }
+                }
+                if (totalsLists[ROWS])
+                    rowContent += genTotalHeaderCells(col - allData.leftOffset + 1, row + 1, scanSums[ROWS], scanIndexes[ROWS], totalsLists[ROWS], wrapContent);
+            } // If the cell is a row header and is null (grouped row header)
+            else if (header.type === "ROW_HEADER" && header.value === "null") {
+                rowContent += '<th class="row_null">&nbsp;</th>';
+            } // If the cell is a row header and isn't null (last row header)
+            else if (header.type === "ROW_HEADER") {
+                if (lowestRowLvl == col)
+                    isHeaderLowestLvl = true;
+                else
+                    nextHeader = data[row][col+1];
+
+                var previousRow = data[row - 1];
+                var nextRow = data[row + 1];
+                var same = !headerSame && !isHeaderLowestLvl && (col == 0 || !topParentsDiffer(data, row, col)) && header.value === previousRow[col].value;
+                headerSame = !same;
+                var sameAsPrevValue = false;
+                if(Settings.ALLOW_TABLE_DATA_COLLAPSE){
+                    if (row > 0 && row < rowLen - 1) {
+                        if (totalsLists[ROWS] == null || (col <= colLen - totalsLists[ROWS].length - 1)) {
+                            var checkOther = true;
+                            if (totalsLists[COLUMNS] && rowShifted >= 0 && col <= isNextTotalsRow(rowShifted + 1, scanSums, scanIndexes, totalsLists, wrapContent)) {
+                                sameAsPrevValue = true;
+                                checkOther = false;
+                            }
+                            if (checkOther && nextRow[col].value == header.value) {
+                                if (col > 0) {
+                                    for (var j = 0; j < col; j++) {
+                                        if (nextRow[j].value == data[row][j].value) {
+                                            sameAsPrevValue = true;
+                                        } else {
+                                            sameAsPrevValue = false;
+                                            break;
+                                        }
+                                    }
+                                } else {
+                                    sameAsPrevValue = true;
+                                }
+                            }
+                        }
+                    } else if(row > 0 && row == rowLen - 1) {
+                        if (totalsLists[COLUMNS] && rowShifted >= 0 && col <= isNextTotalsRow(rowShifted + 1, scanSums, scanIndexes, totalsLists, wrapContent)) {
+                            sameAsPrevValue = true;
+                        }
+                    }
+                }
+                var value = (same ? "<div>&nbsp;</div>" : '<div rel="' + row + ":" + col + '">'
+                            + (sameAsPrevValue && Settings.ALLOW_TABLE_DATA_COLLAPSE ? '<span class="expander expanded" style="cursor: pointer;">&#9660;</span>' : '' ) + header.value + '</div>');
+                if (!wrapContent) {
+                    value = (same ? "&nbsp;" : header.value );
+                }
+                var tipsy = "";
+                /* var tipsy = ' original-title="';
+                if (!same && header.metaproperties) {
+                    for (key in header.metaproperties) {
+                        if (key.substring(0,1) != "$" && key.substring(1,2).toUpperCase() != key.substring(1,2)) {
+                            tipsy += "<b>" + safe_tags_replace(key) + "</b> : " + safe_tags_replace(header.metaproperties[key]) + "<br>";
+                        }
+                    }
+                }
+                tipsy += '"';
+                */
+                var cssclass = (same ? "row_null" : "row");
+                var colspan = 0;
+
+                if (!isHeaderLowestLvl && (typeof nextHeader == "undefined" || nextHeader.value === "null")) {
+                    colspan = 1;
+                    var group = header.properties.dimension;
+                    var level = header.properties.level;
+                    var groupWidth = (group in rowGroups ? rowGroups[group].length - rowGroups[group].indexOf(level) : 1);
+                    for (var k = col + 1; colspan < groupWidth && k <= (lowestRowLvl+1) && data[row][k] !== "null"; k++) {
+                        colspan = k - col;
+                    }
+                    col = col + colspan -1;
+                }
+                rowContent += '<th class="' + cssclass + '" ' + (colspan > 0 ? ' colspan="' + colspan + '"' : "") + tipsy + '>' + value + '</th>';
+            }
+            else if (header.type === "ROW_HEADER_HEADER") {
+                var hierName = function(data) {
+                    var hier = data.properties.hierarchy;
+                    var name = hier.replace(/[\[\]]/gi, '').split('.')[1]
+                        ? hier.replace(/[\[\]]/gi, '').split('.')[1]
+                        : hier.replace(/[\[\]]/gi, '').split('.')[0];
+
+                    return name;
+                };
+                var arrPosRowData = [];
+
+                if (_.contains(arrRowData, header.value)) {
+                    for (var i = 0; i < arrRowData.length; i++) {
+                        if (arrRowData[i] === header.value) {
+                            arrPosRowData.push(i);
+                        }
+                    }
+
+                    arrPosRowData.push(col);
+                }
+
+                rowContent += '<th class="row_header">' + (wrapContent ? '<div>' + header.value + '</div>' : header.value) + '</th>';
+
+                arrRowData.push(header.value);
+                objRowData.push({
+                    name: header.value,
+                    hierName: hierName(header) + '/' + header.value
+                });
+
+                isHeaderLowestLvl = true;
+                processedRowHeader = true;
+                lowestRowLvl = col;
+                if (header.properties.hasOwnProperty("dimension")) {
+                    var group = header.properties.dimension;
+                    if (!(group in rowGroups)) {
+                        rowGroups[group] = [];
+                    }
+                    rowGroups[group].push(header.properties.level);
+                }
+
+                if (arrPosRowData.length > 0) {
+                    var aux = 0;
+
+                    rowContent = '<tr>';
+
+                    if (row === 0) {
+                        rowContent = '<thead>' + rowContent;
+                    }
+
+                    for (var i = 0; i < objRowData.length; i++) {
+                        if (arrPosRowData[aux] === i) {
+                            newRowContent += '<th class="row_header">' + (wrapContent ? '<div>' + objRowData[i].hierName + '</div>' : objRowData[i].hierName) + '</th>';
+                            aux += 1;
+                        }
+                        else {
+                            newRowContent += '<th class="row_header">' + (wrapContent ? '<div>' + objRowData[i].name + '</div>' : objRowData[i].name) + '</th>';
+                        }
+                    }
+
+                    rowContent += newRowContent;
+                }
+            } // If the cell is a normal data cell
+            else if (header.type === "DATA_CELL") {
+                batchStarted = true;
+                var color = "";
+                var val = _.isEmpty(header.value) ? Settings.EMPTY_VALUE_CHARACTER : header.value;
+                var arrow = "";
+
+                if (header.properties.hasOwnProperty('image')) {
+                    var img_height = header.properties.hasOwnProperty('image_height') ? " height='" + header.properties.image_height + "'" : "";
+                    var img_width = header.properties.hasOwnProperty('image_width') ? " width='" + header.properties.image_width + "'" : "";
+                    val = "<img " + img_height + " " + img_width + " style='padding-left: 5px' src='" + header.properties.image + "' border='0'>";
+                }
+                var qualityMatrix = qualityData.result.result.cellset;
+                var celValueAsFloat = parseFloat(val)
+                if (workspace.showQuality){
+                    if(row < 9 && col < 2) {
+                        color = this.getCellQualityColor(qualityMatrix[row][col].value);
+                    }
+                }
+                
+                // Just apply formatting to non-empty cells
+                // if (val !== '-' && val !== '' && header.properties.hasOwnProperty('style')) {
+                //     color = " style='background-color: " + header.properties.style + "' ";
+                // }
+                if (header.properties.hasOwnProperty('link')) {
+                    val = "<a target='__blank' href='" + header.properties.link + "'>" + val + "</a>";
+                }
+                if (header.properties.hasOwnProperty('arrow')) {
+                    arrow = "<img height='10' width='10' style='padding-left: 5px' src='./images/arrow-" + header.properties.arrow + ".gif' border='0'>";
+                }
+
+                if (val !== '-' && val !== '') {
+                    rowWithOnlyEmptyCells = false;
+                }
+
+                rowContent += '<td class="data" ' + color + '>'
+                        + (wrapContent ? '<div class="datadiv '+ setStyleNegativeNumber(header.properties.raw) + '" alt="' + header.properties.raw + '" rel="' + header.properties.position + '">' : "")
+                        + val + arrow
+                        + (wrapContent ? '</div>' : '') + '</td>';
+                if (totalsLists[ROWS])
+                    rowContent += genTotalDataCells(colShifted + 1, rowShifted, scanSums[ROWS], scanIndexes[ROWS], totalsLists, wrapContent);
+            }
+        }
+        rowContent += "</tr>";
+
+        // Change it to let hideEmpty true by default
+        if (options.hideEmpty && header.type === "DATA_CELL" && rowWithOnlyEmptyCells) {
+            rowContent = '';
+        }
+
+        var totals = "";
+        if (totalsLists[COLUMNS] && rowShifted >= 0) {
+            totals += genTotalHeaderRowCells(rowShifted + 1, scanSums, scanIndexes, totalsLists, wrapContent);
+        }
+        if (batchStarted && batchSize) {
+                if (row <= batchSize) {
+                    if (!isColHeader && !isColHeaderDone) {
+                        tableContent += "</thead><tbody>";
+                        isColHeaderDone = true;
+                    }
+                    tableContent += rowContent;
+                    if (totals.length > 0) {
+                        tableContent += totals;
+                    }
+
+                } else {
+                    resultRows.push(rowContent);
+                    if (totals.length > 0) {
+                        resultRows.push(totals);
+                    }
+
+                }
+        } else {
+            if (!isColHeader && !isColHeaderDone) {
+                tableContent += "</thead><tbody>";
+                isColHeaderDone = true;
+            }
+            tableContent += rowContent;
+            if (totals.length > 0) {
+                tableContent += totals;
+            }
+        }
+    }
+    if (options) {
+        options['batchResult'] = resultRows;
+        options['hasBatchResult'] = resultRows.length > 0;
+    }
+    return "<table>" + tableContent + "</tbody></table>";
+};
+
+SaikuTableRenderer.prototype.getCellQualityColor = function(val) {
+    if(val !== undefined){
+        // var green = 75 + 180*val/150;
+        // if (/* red >= 0 && red <= 255 && */ green >= 0 && green <=255){
+        //     return " style='font-weight:bold;background-color: rgb(0, " + green + ", 0)' ";
+        // }  
+        if(val == 1){
+            return "style='font-weight:bold;background-color: rgb(224, 38, 38)'"
+        } else if (val == 2) {
+            return " style='font-weight:bold;background-color: rgb(239, 93, 93)' "
+        } else if (val == 3) {
+            return " style='font-weight:bold;background-color: rgb(48, 219, 139)' "    
+        } else if (val == 4) {
+            return " style='font-weight:bold;background-color: rgb(24, 247, 84)' "
+        }
+    }
+    return " style='font-weight:bold;background-color: rgb(255, 255, 255)' "
 };
 
 SaikuTableRenderer.prototype.renderSummary = function(data) {
