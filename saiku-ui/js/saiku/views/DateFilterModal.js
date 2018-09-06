@@ -899,7 +899,6 @@ var DateFilterModal = Modal.extend({
 	finished: function(event) {
 		this.$el.dialog('destroy').remove();
 		if (!event) {
-			console.log("aqui");
 			this.query.run();
 		}
 	}

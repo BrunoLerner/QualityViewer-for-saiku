@@ -82,7 +82,6 @@ var ReportTitlesModal = Modal.extend({
     };
 
     this.query.setProperty('saiku.ui.headings', JSON.stringify(headings));
-    console.log('aqui');
     this.query.run(true);
 
     this.$el.dialog('close');
@@ -94,7 +93,6 @@ var ReportTitlesModal = Modal.extend({
     this.$el.find('#title', '#variable', '#explanation').val('');
 
     this.query.setProperty('saiku.ui.headings', JSON.stringify({}));
-    console.log('aqui');
     this.query.run(true);
 
     this.$el.dialog('close');

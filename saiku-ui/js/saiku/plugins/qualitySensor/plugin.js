@@ -24,15 +24,17 @@ var QualitySensor = Backbone.Model.extend({
     this.workspace.toolbar.qualitySensor = this.onClickedButton;
   },
   onClickedButton: function() {
-    // Criar caixa onde o usuário vai selecionar a métrica que deseja ver
-
-    // Populate dimensions and measure on Query object
-
-    // Run queries
-
     // Change flag
     this.workspace.showQuality = !this.workspace.showQuality;
-    // Change color of button
+
+    // Criar caixa onde o usuário vai selecionar a métrica que deseja ver
+    if (this.workspace.showQuality) {
+      Saiku.events.trigger('qualitySensor:openModal', { workspace: this.workspace });
+    }
+    // Populate dimensions and measure on Query object
+    // Run queries
+
+    // Change style of button
 
     // Render table again
     this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
@@ -56,3 +58,5 @@ Saiku.events.bind('session:new', function(session) {
 
   Saiku.session.bind('workspace:new', new_workspace);
 });
+
+Saiku.events.bind('qualitySensor:openModal', function(workspace) {});

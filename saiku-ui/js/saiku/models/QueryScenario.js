@@ -97,7 +97,6 @@ var QueryScenario = Backbone.Model.extend({
   },
 
   parse: function() {
-    console.log('aqui');
     this.query.run();
   },
 

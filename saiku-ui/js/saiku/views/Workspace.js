@@ -669,7 +669,6 @@ var Workspace = Backbone.View.extend({
         }
 
         if ((Settings.MODE == "table") && this.query) {
-            console.log("aqui");
             this.query.run(true);
             return;
         }
@@ -701,7 +700,6 @@ var Workspace = Backbone.View.extend({
                 this.toggle_sidebar();
         }
         if ((Settings.MODE == "view") && this.query || this.isReadOnly) {
-            console.log("aqui");
             this.query.run(true);
             if (this.selected_cube === undefined) {
                 var schema = this.query.model.cube.schema;
@@ -716,6 +714,7 @@ var Workspace = Backbone.View.extend({
         }
 
         if (((Settings.MODE == "view") && this.query_quality || this.isReadOnly) && showQuality) {
+            console.log("check this line")
             this.query_quality.run(true);
             // if (this.selected_cube === undefined) {
             //     var schema = this.query.model.cube.schema;
@@ -790,7 +789,6 @@ var Workspace = Backbone.View.extend({
 
         // is this a new query?
         if (typeof isNew != "undefined") {
-            console.log("aqui");
             this.query.run(true);
         }
 

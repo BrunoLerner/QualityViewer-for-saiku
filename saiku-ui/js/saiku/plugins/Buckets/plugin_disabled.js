@@ -156,7 +156,6 @@ var Buckets = Backbone.View.extend({
       }).fetch({ success: this.buildTemplate });
     }
     else {
-      console.log('aqui');
       this.workspace.query.action.del('/tag', {
         success: this.workspace.query.run
       });
@@ -304,7 +303,6 @@ var Buckets = Backbone.View.extend({
     if ($(event.target).hasClass('on')) {
       $(event.target).removeClass('on');
       self.bucket = null;
-      console.log('aqui');
       this.workspace.query.action.del('/tag', {
         success: this.workspace.query.run
       });
@@ -314,7 +312,6 @@ var Buckets = Backbone.View.extend({
       self.bucket = tagName;
       _.each(this.tags, function(tag) {
         if (tag.name == tagName) {
-          console.log('aqui');
           self.workspace.query.action.put('/tag', {
             success: self.workspace.query.run,
             data: { tag: JSON.stringify(tag) }

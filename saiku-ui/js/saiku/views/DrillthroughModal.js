@@ -266,7 +266,6 @@ var DrillthroughModal = Modal.extend({
     $(this.el)
       .dialog('destroy')
       .remove();
-    console.log('aqui');
     this.query.run();
   }
 });

@@ -471,7 +471,6 @@ var Table = Backbone.View.extend({
                   self.workspace.query.helper.clearMeasures();
                   self.workspace.query.helper.includeMeasure(measure);
                   self.workspace.sync_query();
-                  console.log('aqui');
                   self.workspace.query.run();
                 }
                 else {
@@ -481,7 +480,6 @@ var Table = Backbone.View.extend({
                   });
                   hierarchy.levels[l_name].selection = { type: 'INCLUSION', members: updates };
                   self.workspace.drop_zones.synchronize_query();
-                  console.log('aqui');
                   self.workspace.query.run(true);
                 }
               }
@@ -508,7 +506,6 @@ var Table = Backbone.View.extend({
 
               self.workspace.query.helper.removeLevel(h, k);
               self.workspace.drop_zones.synchronize_query();
-              console.log('aqui');
               self.workspace.query.run(true);
             }
             else if (key.substring(0, key.indexOf('-')) === 'keep') {
@@ -526,7 +523,6 @@ var Table = Backbone.View.extend({
                 hierarchy.levels[l_caption].selection = { type: 'INCLUSION', members: updates };
                 self.workspace.query.helper.includeLevel(axis, h, k, null);
                 self.workspace.drop_zones.synchronize_query();
-                console.log('aqui');
                 self.workspace.query.run(true);
               }
             }
@@ -536,7 +532,6 @@ var Table = Backbone.View.extend({
 
               self.workspace.query.helper.includeLevel(axis, h, k, null);
               self.workspace.drop_zones.synchronize_query();
-              console.log('aqui');
               self.workspace.query.run(true);
             }
           },
@@ -548,7 +543,7 @@ var Table = Backbone.View.extend({
   },
 
   render: function(args, block) {
-    console.log(this.workspace)
+    console.log(this.workspace);
     if (
       typeof args === 'undefined' ||
 			typeof args.data === 'undefined' ||
