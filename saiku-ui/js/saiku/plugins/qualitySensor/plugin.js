@@ -24,11 +24,17 @@ var QualitySensor = Backbone.Model.extend({
     this.workspace.toolbar.qualitySensor = this.onClickedButton;
   },
   onClickedButton: function() {
+    // Criar caixa onde o usuário vai selecionar a métrica que deseja ver
+
+    // Populate dimensions and measure on Query object
+
+    // Run queries
+
     // Change flag
     this.workspace.showQuality = !this.workspace.showQuality;
     // Change color of button
-    // this.workspace.toolbar.el
-    // Re run queries
+
+    // Render table again
     this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
   }
 });

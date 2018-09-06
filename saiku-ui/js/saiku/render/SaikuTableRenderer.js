@@ -1225,7 +1225,6 @@ SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, works
                     val = "<img " + img_height + " " + img_width + " style='padding-left: 5px' src='" + header.properties.image + "' border='0'>";
                 }
                 var qualityMatrix = qualityData.result.result.cellset;
-                var celValueAsFloat = parseFloat(val)
                 if (workspace.showQuality){
                     if(row < 9 && col < 2) {
                         color = this.getCellQualityColor(qualityMatrix[row][col].value);

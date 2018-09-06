@@ -262,7 +262,7 @@ var DimensionList = Backbone.View.extend({
       type: $target.find('a').attr('type')
     };
 
-    // console.log(measure);
+    // botar o nome da métrica que o usuário deseja ver
     var measure_quality = {
       name: 'Qualidade',
       type: $target.find('a').attr('type')
