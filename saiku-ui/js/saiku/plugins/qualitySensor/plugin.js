@@ -2,6 +2,7 @@ var QualitySensor = Backbone.Model.extend({
   initialize: function(args) {
     this.workspace = args.workspace;
     this.workspace.showQuality = false;
+    this.modal = undefined;
     // Add quality sensor button
     if (document && document['addEventListener']) {
       this.add_button();
@@ -27,6 +28,16 @@ var QualitySensor = Backbone.Model.extend({
     // Change flag
     this.workspace.showQuality = !this.workspace.showQuality;
 
+    if (this.modal == undefined) {
+      this.modal = new QualityModal({
+        workspace: this.workspace,
+        qualityMetric: 'alfafa'
+      });
+      this.modal.render().open();
+    }
+    else if (this.workspace.showQuality) {
+      this.modal.render().open();
+    }
     // Criar caixa onde o usuário vai selecionar a métrica que deseja ver
     if (this.workspace.showQuality) {
       Saiku.events.trigger('qualitySensor:openModal', { workspace: this.workspace });

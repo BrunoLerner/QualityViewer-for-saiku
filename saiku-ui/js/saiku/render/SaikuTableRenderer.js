@@ -731,7 +731,6 @@ SaikuTableRenderer.prototype.internalRender = function(allData, options) {
                 }
             } // If the cell is a normal data cell
             else if (header.type === "DATA_CELL") {
-                console.log(this)
                 batchStarted = true;
                 var color = "";
                 var val = _.isEmpty(header.value) ? Settings.EMPTY_VALUE_CHARACTER : header.value;

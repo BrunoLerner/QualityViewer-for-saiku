@@ -543,7 +543,6 @@ var Table = Backbone.View.extend({
   },
 
   render: function(args, block) {
-    console.log(this.workspace);
     if (
       typeof args === 'undefined' ||
 			typeof args.data === 'undefined' ||
@@ -598,8 +597,6 @@ var Table = Backbone.View.extend({
     // Append the table
     this.clearOut();
     $(this.el).html('<table></table>');
-
-    var showQuality = true;
 
     if (this.workspace.showQuality) {
       var contents = this.renderer.renderWithQuality(data, this.workspace, {

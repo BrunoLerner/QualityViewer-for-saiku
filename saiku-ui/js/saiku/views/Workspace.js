@@ -672,11 +672,6 @@ var Workspace = Backbone.View.extend({
             this.query.run(true);
             return;
         }
-        var showQuality = true;
-        if ((Settings.MODE == "table") && this.query_quality && showQuality) {
-            this.query_quality.run(true);
-            return;
-        }
 
         if (this.query.model.type == "MDX") {
                 this.query.setProperty("saiku.olap.result.formatter", "flat");
@@ -713,22 +708,6 @@ var Workspace = Backbone.View.extend({
             return;
         }
 
-        if (((Settings.MODE == "view") && this.query_quality || this.isReadOnly) && showQuality) {
-            console.log("check this line")
-            this.query_quality.run(true);
-            // if (this.selected_cube === undefined) {
-            //     var schema = this.query.model.cube.schema;
-            //     this.selected_cube = this.query.model.cube.connection + "/" +
-            //         this.query.model.cube.catalog + "/" +
-            //         ((schema === "" || schema === null) ? "null" : schema) +
-            //         "/" + encodeURIComponent(this.query.model.cube.name);
-            //     $(this.el).find('.cubes')
-            //         .val(this.selected_cube);
-            // }
-            return;
-        }
-
-
         // Find the selected cube
         if (this.selected_cube === undefined) {
             var schema = this.query.model.cube.schema;
@@ -743,8 +722,9 @@ var Workspace = Backbone.View.extend({
         if (this.selected_cube) {
             // Create new DimensionList and MeasureList
             var cubeModel = Saiku.session.sessionworkspace.cube[this.selected_cube];
+
             var showQuality = true;
-            console.log(this)
+            //Important Part
             if (showQuality){
                 var parsed_cube = this.selected_cube.split('/');
                 var selected_qualityCube = this.get_quality_cube(parsed_cube[0]);
@@ -762,7 +742,7 @@ var Workspace = Backbone.View.extend({
                         self.trigger('cube:loaded');
                     }});
                 }
-                this.trigger('query:new', { workspace: this });
+                // this.trigger('query:new', { workspace: this });
             }
             
             this.dimension_list = new DimensionList({
