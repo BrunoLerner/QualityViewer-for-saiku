@@ -570,6 +570,65 @@ var Workspace = Backbone.View.extend({
         // console.log(obj.query_quality);
     },
 
+    // Receives a workspace as param
+    create_new_quality_query: function(obj){
+        if (obj.query_quality) {
+            obj.query_quality.destroy();
+            obj.query_quality.clear();
+            if (obj.query_quality.name) {
+                obj.query_quality.name = undefined;
+                obj.update_caption(true);
+            }
+            obj.query_quality.name = undefined;
+        }
+        obj.clear();
+        // obj.processing.hide();
+        // Initialize the new query
+        obj.selected_cube = $(obj.el).find('.cubes').val()
+            ? $(obj.el).find('.cubes').val()
+            : obj.selected_cube;
+        if (!obj.selected_cube) {
+            // Someone literally selected "Select a cube"
+            $(obj.el).find('.calculated_measures, .addMeasure').hide();
+            $(obj.el).find('.dimension_tree').html('');
+            $(obj.el).find('.measure_tree').html('');
+            return false;
+        }
+
+
+        var parsed_cube = obj.selected_cube.split('/');
+        obj.selected_cube_quality = this.get_quality_cube(parsed_cube[0]);
+    
+        obj.metadata = Saiku.session.sessionworkspace.cube[obj.selected_cube_quality];
+        var parsed_cube_quality = obj.selected_cube_quality.split('/');
+        var cube_quality = parsed_cube_quality[3];
+        for (var i = 4, len = parsed_cube_quality.length; i < len; i++) {
+            cube_quality += "/" + parsed_cube_quality[i];
+        }
+
+        this.query_quality = new Query({
+            cube: {
+                connection: parsed_cube_quality[0],
+                catalog: parsed_cube_quality[1],
+                schema: (parsed_cube_quality[2] == "null" ? "" : parsed_cube_quality[2]) ,
+                name: decodeURIComponent(cube_quality)
+            }
+        }, {
+            workspace: obj
+        });
+
+        // Save the query to the server and init the UI
+        obj.query_quality = this.query_quality;
+        obj.query_quality.save({},{ data: { json: JSON.stringify(this.query_quality.model) }, async: false });
+        obj.init_query();
+
+        // console.log("cube query:");
+        // console.log(obj.query);
+        // console.log("quality cube query:");
+        // console.log(obj.query_quality);
+    },
+
+
     extractDefaultFilters: function(p){
         var defaultfilters=[];
         var filtername;

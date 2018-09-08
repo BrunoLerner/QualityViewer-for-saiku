@@ -28,7 +28,6 @@ var Table = Backbone.View.extend({
   initialize: function(args) {
     this.workspace = args.workspace;
     this.renderer = new SaikuTableRenderer();
-    // this.qualityMetrics = args.qualityMetrics;
 
     // Bind table rendering to query result event
     _.bindAll(this, 'render', 'process_data', 'collapse', 'expand');

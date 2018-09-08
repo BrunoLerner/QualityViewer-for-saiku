@@ -30,18 +30,14 @@ var QualitySensor = Backbone.Model.extend({
 
     if (this.modal == undefined) {
       this.modal = new QualityModal({
-        workspace: this.workspace,
-        qualityMetric: 'alfafa'
+        workspace: this.workspace
       });
       this.modal.render().open();
     }
     else if (this.workspace.showQuality) {
       this.modal.render().open();
     }
-    // Criar caixa onde o usuário vai selecionar a métrica que deseja ver
-    if (this.workspace.showQuality) {
-      Saiku.events.trigger('qualitySensor:openModal', { workspace: this.workspace });
-    }
+
     // Populate dimensions and measure on Query object
     // Run queries
 
@@ -69,5 +65,3 @@ Saiku.events.bind('session:new', function(session) {
 
   Saiku.session.bind('workspace:new', new_workspace);
 });
-
-Saiku.events.bind('qualitySensor:openModal', function(workspace) {});
