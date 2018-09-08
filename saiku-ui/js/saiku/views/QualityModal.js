@@ -21,12 +21,7 @@ var QualityModal = Modal.extend({
   buttons: [{ text: 'Ok', method: 'save' }, { text: 'Cancel', method: 'close' }],
 
   events: {
-    'click .add_role': 'add_role',
-    'click .remove_acl': 'remove_acl',
-    'change #quality_measures': 'type_quality_measures',
-    'submit form': 'add_role',
-    'click a': 'call',
-    'click input.private': 'keep_private'
+    'change #quality_measures': 'type_quality_measures'
   },
 
   /**
@@ -58,6 +53,11 @@ var QualityModal = Modal.extend({
     var self = this;
 
     this.workspace = args.workspace;
+
+    if (!this.workspace.selected_cube_quality) {
+      this.workspace.create_new_quality_query(this.workspace);
+    }
+
     var cubeQuality = this.workspace.selected_cube_quality;
     var qualityMeasures = Saiku.session.sessionworkspace.cube[cubeQuality].get('data').measures;
     var dimensions = Saiku.session.sessionworkspace.cube[cubeQuality].get('data').dimensions;
@@ -66,14 +66,12 @@ var QualityModal = Modal.extend({
       uniqueName: qualityMeasures ? qualityMeasures[0].hierarchyUniqueName : null
     };
 
-    console.log(qualityMeasures);
-    // // Load template
+    // Load template
     this.message = this.template_modal({
       measures: qualityMeasures,
       dataMeasures: dataMeasures,
       dimensions: dimensions
     });
-
     this.bind('open', function() {
       this.$el.find('.dialog_icon').remove();
     });
@@ -107,5 +105,6 @@ var QualityModal = Modal.extend({
 
     this.workspace.sync_query();
     this.workspace.query_quality.run();
+    console.log(this.workspace);
   }
 });

@@ -164,12 +164,12 @@ var DimensionList = Backbone.View.extend({
   },
 
   select_dimension: function(event, ui) {
-    var showQuality = true;
+    var showQuality = false;
 
     if (this.workspace.query.model.type != 'QUERYMODEL') {
       return;
     }
-    if (this.workspace.query_quality.model.type != 'QUERYMODEL' && showQuality) {
+    if (showQuality && this.workspace.query_quality.model.type != 'QUERYMODEL') {
       return;
     }
 
@@ -245,7 +245,7 @@ var DimensionList = Backbone.View.extend({
   },
 
   select_measure: function(event, ui) {
-    var showQuality = true;
+    var showQuality = false;
 
     if (
       $(event.target)

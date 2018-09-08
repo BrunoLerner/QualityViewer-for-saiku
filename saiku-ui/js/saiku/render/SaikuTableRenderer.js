@@ -1223,8 +1223,8 @@ SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, works
                     var img_width = header.properties.hasOwnProperty('image_width') ? " width='" + header.properties.image_width + "'" : "";
                     val = "<img " + img_height + " " + img_width + " style='padding-left: 5px' src='" + header.properties.image + "' border='0'>";
                 }
-                var qualityMatrix = qualityData.result.result.cellset;
                 if (workspace.showQuality){
+                    var qualityMatrix = qualityData.result.result.cellset;
                     if(row < 9 && col < 2) {
                         color = this.getCellQualityColor(qualityMatrix[row][col].value);
                     }

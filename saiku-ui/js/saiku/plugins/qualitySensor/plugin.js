@@ -44,7 +44,7 @@ var QualitySensor = Backbone.Model.extend({
     // Change style of button
 
     // Render table again
-    this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
+    // this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
   }
 });
 

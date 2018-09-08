@@ -426,7 +426,7 @@ var Workspace = Backbone.View.extend({
             $(obj.el).find('.measure_tree').html('');
             return false;
         }
-        var showQuality = true;
+        var showQuality = false;
         if(showQuality){
             var parsed_cube = obj.selected_cube.split('/');
             obj.selected_cube_quality = this.get_quality_cube(parsed_cube[0]);
@@ -581,8 +581,7 @@ var Workspace = Backbone.View.extend({
             }
             obj.query_quality.name = undefined;
         }
-        obj.clear();
-        // obj.processing.hide();
+    
         // Initialize the new query
         obj.selected_cube = $(obj.el).find('.cubes').val()
             ? $(obj.el).find('.cubes').val()
@@ -620,12 +619,12 @@ var Workspace = Backbone.View.extend({
         // Save the query to the server and init the UI
         obj.query_quality = this.query_quality;
         obj.query_quality.save({},{ data: { json: JSON.stringify(this.query_quality.model) }, async: false });
-        obj.init_query();
+        obj.init_quality_query();
 
-        // console.log("cube query:");
-        // console.log(obj.query);
-        // console.log("quality cube query:");
-        // console.log(obj.query_quality);
+        console.log("cube query:");
+        console.log(obj.query);
+        console.log("quality cube query:");
+        console.log(obj.query_quality);
     },
 
 
@@ -782,7 +781,7 @@ var Workspace = Backbone.View.extend({
             // Create new DimensionList and MeasureList
             var cubeModel = Saiku.session.sessionworkspace.cube[this.selected_cube];
 
-            var showQuality = true;
+            var showQuality = false;
             //Important Part
             if (showQuality){
                 var parsed_cube = this.selected_cube.split('/');
@@ -836,6 +835,29 @@ var Workspace = Backbone.View.extend({
         }
         Saiku.i18n.translate();
     },
+
+    init_quality_query: function(isNew) {
+        var self = this;
+        if (!this.selected_cube) {
+            return
+        }
+        var parsed_cube = this.selected_cube.split('/');
+        var selected_qualityCube = this.get_quality_cube(parsed_cube[0]);
+        var cubeModel_quality = Saiku.session.sessionworkspace.cube[selected_qualityCube]
+        this.dimension_list_quality = new DimensionList({
+            workspace: this,
+            cube: cubeModel_quality
+        });
+
+        if (!cubeModel_quality.has('data')) {
+            cubeModel_quality.fetch({ success: function() {
+            }});
+        }
+        if (typeof isNew != "undefined") {
+            this.query_quality.run(true);
+        }
+    },
+
 
     get_quality_cube: function(cube_name) {
         for(var i = 0; i < Saiku.session.sessionworkspace.connections.length; i++){
@@ -983,46 +1005,48 @@ var Workspace = Backbone.View.extend({
 
             }
         }
-
-
-        var model_quality = this.query_quality.helper.model();
-        if (model_quality.type === "QUERYMODEL") {
-
-            var self = this;
-            if(self.dimension_list_quality!=null){
-                var dimlist_q = dimension_el ? dimension_el : $(self.dimension_list_quality.el);
-            }
-            else{
-                var dimlist_q = dimension_el ? dimension_el : null;
-            }
-
-            if (!self.isReadOnly && (!Settings.hasOwnProperty('MODE') || (Settings.MODE != "table" && Settings.MODE != "view"))) {
-                dimlist_q.find('.selected').removeClass('selected');
-
-                var calcMeasures_q = self.query_quality.helper.getCalculatedMeasures();
-                //var calcMembers = self.query.helper.getCalculatedMembers();
-
-                if (calcMeasures_q && calcMeasures_q.length > 0) {
-                    var template_q = _.template($("#template-calculated-measures").html(),{ measures: calcMeasures_q });
-                    dimlist_q.find('.calculated_measures').html(template_q);
-                    dimlist_q.find('.calculated_measures').find('.measure').parent('li').draggable({
-                        cancel: '.not-draggable',
-                        connectToSortable: $(self.el).find('.fields_list_body.details ul.connectable'),
-                        helper: 'clone',
-                        placeholder: 'placeholder',
-                        opacity: 0.60,
-                        tolerance: 'touch',
-                        containment:    $(self.el),
-                        cursorAt: { top: 10, left: 35 }
-                    });
+        var showQuality = false
+        if(showQuality){
+            var model_quality = this.query_quality.helper.model();
+            if (model_quality.type === "QUERYMODEL") {
+    
+                var self = this;
+                if(self.dimension_list_quality!=null){
+                    var dimlist_q = dimension_el ? dimension_el : $(self.dimension_list_quality.el);
                 }
-                else {
-                    dimlist_q.find('.calculated_measures').empty();
+                else{
+                    var dimlist_q = dimension_el ? dimension_el : null;
                 }
-
-                self.drop_zones.synchronize_query();
-
+    
+                if (!self.isReadOnly && (!Settings.hasOwnProperty('MODE') || (Settings.MODE != "table" && Settings.MODE != "view"))) {
+                    dimlist_q.find('.selected').removeClass('selected');
+    
+                    var calcMeasures_q = self.query_quality.helper.getCalculatedMeasures();
+                    //var calcMembers = self.query.helper.getCalculatedMembers();
+    
+                    if (calcMeasures_q && calcMeasures_q.length > 0) {
+                        var template_q = _.template($("#template-calculated-measures").html(),{ measures: calcMeasures_q });
+                        dimlist_q.find('.calculated_measures').html(template_q);
+                        dimlist_q.find('.calculated_measures').find('.measure').parent('li').draggable({
+                            cancel: '.not-draggable',
+                            connectToSortable: $(self.el).find('.fields_list_body.details ul.connectable'),
+                            helper: 'clone',
+                            placeholder: 'placeholder',
+                            opacity: 0.60,
+                            tolerance: 'touch',
+                            containment:    $(self.el),
+                            cursorAt: { top: 10, left: 35 }
+                        });
+                    }
+                    else {
+                        dimlist_q.find('.calculated_measures').empty();
+                    }
+    
+                    self.drop_zones.synchronize_query();
+    
+                }
             }
+    
         }
 
         
