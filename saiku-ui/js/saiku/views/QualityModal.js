@@ -100,25 +100,22 @@ var QualityModal = Modal.extend({
     this.workspace.query_quality.helper.includeMeasure(measure_quality);
     this.workspace.sync_query();
     this.workspace.query_quality.run();
-    do {
-      setTimeout(this.renderTableWithQuality, 50);
-    } while (!this.workspace.query_quality.result.hasRun());
-    // var self = this;
+    var self = this;
 
-    // while (!this.workspace.query_quality.result.hasRun()) {
-    //   if (this.workspace.query_quality.result.lastresult()) {
-    //     this.workspace.table.render({ data: self.workspace.query.result.lastresult() });
-    //   }
-    // }
-    if (event) {
-      event.preventDefault();
-    }
-    // this.workspace.table.renderer.renderWithQuality(this.workspace.query.result.lastresult(), this.workspace);
+    setTimeout(function() {
+      self.workspace.table.render({ data: self.workspace.query.result.lastresult() });
+      console.log(self.workspace.query_quality.result.hasRun());
+      self.close();
+    }, 500);
+    // this.renderTableWithQuality(this);
   },
 
-  renderTableWithQuality: function() {
-    if (this.workspace.query_quality.result.hasRun()) {
-      this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
+  renderTableWithQuality: function(self) {
+    console.log(self.workspace.query_quality.result.hasRun());
+    if (self.workspace.query_quality.result.hasRun()) {
+      self.workspace.table.render({ data: self.workspace.query.result.lastresult() });
+      return;
     }
+    setTimeout(this.renderTableWithQuality(self), 50);
   }
 });
