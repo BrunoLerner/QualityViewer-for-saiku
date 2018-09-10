@@ -38,13 +38,7 @@ var QualitySensor = Backbone.Model.extend({
       this.modal.render().open();
     }
 
-    // Populate dimensions and measure on Query object
-    // Run queries
-
     // Change style of button
-
-    // Render table again
-    // this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
   }
 });
 

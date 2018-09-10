@@ -54,9 +54,9 @@ var QualityModal = Modal.extend({
 
     this.workspace = args.workspace;
 
-    if (!this.workspace.selected_cube_quality) {
-      this.workspace.create_new_quality_query(this.workspace);
-    }
+    // if (!this.workspace.selected_cube_quality) {
+    //   this.workspace.create_new_quality_query(this.workspace);
+    // }
 
     var cubeQuality = this.workspace.selected_cube_quality;
     var qualityMeasures = Saiku.session.sessionworkspace.cube[cubeQuality].get('data').measures;
@@ -87,14 +87,10 @@ var QualityModal = Modal.extend({
     var qualityMeasure = this.$el.find('#quality_measures option:selected')[0].text;
 
     this.selectedQualityMeasure = qualityMeasure;
-    console.log(qualityMeasure);
-    if (event) {
-      event.preventDefault();
-    }
-    this.save();
+    this.save(event);
   },
 
-  save: function() {
+  save: function(event) {
     // botar o nome da métrica que o usuário deseja ver
     var measure_quality = {
       name: this.selectedQualityMeasure,
@@ -102,9 +98,27 @@ var QualityModal = Modal.extend({
     };
 
     this.workspace.query_quality.helper.includeMeasure(measure_quality);
-
     this.workspace.sync_query();
     this.workspace.query_quality.run();
-    console.log(this.workspace);
+    do {
+      setTimeout(this.renderTableWithQuality, 50);
+    } while (!this.workspace.query_quality.result.hasRun());
+    // var self = this;
+
+    // while (!this.workspace.query_quality.result.hasRun()) {
+    //   if (this.workspace.query_quality.result.lastresult()) {
+    //     this.workspace.table.render({ data: self.workspace.query.result.lastresult() });
+    //   }
+    // }
+    if (event) {
+      event.preventDefault();
+    }
+    // this.workspace.table.renderer.renderWithQuality(this.workspace.query.result.lastresult(), this.workspace);
+  },
+
+  renderTableWithQuality: function() {
+    if (this.workspace.query_quality.result.hasRun()) {
+      this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
+    }
   }
 });

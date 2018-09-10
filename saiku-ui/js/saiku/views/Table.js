@@ -596,7 +596,6 @@ var Table = Backbone.View.extend({
     // Append the table
     this.clearOut();
     $(this.el).html('<table></table>');
-
     if (this.workspace.showQuality) {
       var contents = this.renderer.renderWithQuality(data, this.workspace, {
         hideEmpty: hideEmptyRows,

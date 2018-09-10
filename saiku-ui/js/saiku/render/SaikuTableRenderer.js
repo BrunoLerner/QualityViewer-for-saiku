@@ -898,7 +898,7 @@ SaikuTableRenderer.prototype.renderWithQuality = function(data, workspace, optio
 }
 
 SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, workspace, options) {
-    var qualityData = workspace.query_quality
+    var qualityData = workspace.query_quality.result.lastresult();
     var tableContent = "";
     var rowContent = "";
     var data = allData.cellset;
@@ -1222,9 +1222,9 @@ SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, works
                     var img_height = header.properties.hasOwnProperty('image_height') ? " height='" + header.properties.image_height + "'" : "";
                     var img_width = header.properties.hasOwnProperty('image_width') ? " width='" + header.properties.image_width + "'" : "";
                     val = "<img " + img_height + " " + img_width + " style='padding-left: 5px' src='" + header.properties.image + "' border='0'>";
-                }
-                if (workspace.showQuality){
-                    var qualityMatrix = qualityData.result.result.cellset;
+                }   
+                if (workspace.showQuality && qualityData){
+                    var qualityMatrix = qualityData.cellset;
                     if(row < 9 && col < 2) {
                         color = this.getCellQualityColor(qualityMatrix[row][col].value);
                     }
