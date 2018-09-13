@@ -167,7 +167,7 @@ var DimensionList = Backbone.View.extend({
     if (this.workspace.query.model.type != 'QUERYMODEL') {
       return;
     }
-    if (this.workspace.query_quality.model.type != 'QUERYMODEL') {
+    if (this.workspace.query_quality && this.workspace.query_quality.model.type != 'QUERYMODEL') {
       return;
     }
 
@@ -217,16 +217,18 @@ var DimensionList = Backbone.View.extend({
 
       this.workspace.toolbar.$el.find('.group_parents').removeClass('on');
       this.workspace.toolbar.group_parents();
-      console.log(axisName, hierarchy, level, uniqueName);
       this.workspace.query.helper.includeLevelCalculatedMember(axisName, hierarchy, level, uniqueName);
       // Always add same dimensions to quality query
-      this.workspace.query_quality.helper.includeLevelCalculatedMember(axisName, hierarchy, level, uniqueName);
+      if (this.workspace.query_quality) {
+        this.workspace.query_quality.helper.includeLevelCalculatedMember(axisName, hierarchy, level, uniqueName);
+      }
     }
     else {
-      console.log(axisName, hierarchy, level, uniqueName);
       this.workspace.query.helper.includeLevel(axisName, hierarchy, level);
       // Always add same dimensions to quality query
-      this.workspace.query_quality.helper.includeLevel(axisName, hierarchy, level);
+      if (this.workspace.query_quality) {
+        this.workspace.query_quality.helper.includeLevel(axisName, hierarchy, level);
+      }
     }
 
     // Trigger event when select dimension
@@ -235,67 +237,15 @@ var DimensionList = Backbone.View.extend({
     this.workspace.query.run();
 
     // Always add same dimensions to quality query
-    this.workspace.query_quality.run();
+    if (this.workspace.query_quality) {
+      this.workspace.query_quality.run();
+    }
+
     event.preventDefault();
     return false;
   },
 
-  // select_quality_dimension: function(event, ui) {
-  //   if (this.workspace.query_quality.model.type != 'QUERYMODEL') {
-  //     return;
-  //   }
-
-  //   var hierarchy = $(event.target).attr('hierarchy');
-  //   // var hierarchy_quality = $(event.target).attr('hierarchy');
-
-  //   var level = $(event.target).attr('level');
-
-  //   var axisName = 'ROWS';
-  //   var isCalcMember = $(event.target)
-  //     .parent()
-  //     .hasClass('dimension-level-calcmember');
-
-  //   if ($(this.workspace.el).find(".workspace_fields ul.hierarchy[hierarchy='" + hierarchy + "']").length > 0) {
-  //     var $level = $(this.workspace.el)
-  //       .find(".workspace_fields ul[hierarchy='" + hierarchy + "'] a[level='" + level + "']")
-  //       .parent()
-  //       .show();
-
-  //     axisName = $level.parents('.fields_list_body').hasClass('rows') ? 'ROWS' : 'COLUMNS';
-  //   }
-  //   else {
-  //     var $axis =
-  // 			$(this.workspace.el).find(".workspace_fields .fields_list[title='ROWS'] ul.hierarchy").length > 0 ?
-  // 			  $(this.workspace.el).find(".workspace_fields .fields_list[title='COLUMNS'] ul.connectable") :
-  // 			  $(this.workspace.el).find(".workspace_fields .fields_list[title='ROWS'] ul.connectable");
-
-  //     axisName = $axis.parents('.fields_list').attr('title');
-  //   }
-
-  //   if (isCalcMember) {
-  //     var uniqueName = $(event.target).attr('uniquename');
-
-  //     this.workspace.toolbar.$el.find('.group_parents').removeClass('on');
-  //     this.workspace.toolbar.group_parents();
-  //     this.workspace.query_quality.helper.includeLevelCalculatedMember(axisName, hierarchy, level, uniqueName);
-  //   }
-  //   else {
-  //     this.workspace.query_quality.helper.includeLevel(axisName, hierarchy, level);
-  //   }
-
-  //   // Trigger event when select dimension
-  //   Saiku.session.trigger('dimensionList:select_dimension', { workspace: this.workspace });
-
-  //   this.workspace.sync_query();
-  //   this.workspace.query_quality.run();
-
-  //   event.preventDefault();
-  //   return false;
-  // },
-
   select_measure: function(event, ui) {
-    var showQuality = false;
-
     if (
       $(event.target)
         .parent()
@@ -318,14 +268,8 @@ var DimensionList = Backbone.View.extend({
     };
 
     this.workspace.query.helper.includeMeasure(measure);
-    if (showQuality) {
-      this.workspace.query_quality.helper.includeMeasure(measure_quality);
-    }
     this.workspace.sync_query();
     this.workspace.query.run();
-    if (showQuality) {
-      this.workspace.query_quality.run();
-    }
 
     event.preventDefault();
     return false;

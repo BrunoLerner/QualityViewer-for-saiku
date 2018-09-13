@@ -552,28 +552,30 @@ var Workspace = Backbone.View.extend({
         var parsed_cube = obj.selected_cube.split('/');
         obj.selected_cube_quality = this.get_quality_cube(parsed_cube[0]);
     
-        obj.metadata = Saiku.session.sessionworkspace.cube[obj.selected_cube_quality];
-        var parsed_cube_quality = obj.selected_cube_quality.split('/');
-        var cube_quality = parsed_cube_quality[3];
-        for (var i = 4, len = parsed_cube_quality.length; i < len; i++) {
-            cube_quality += "/" + parsed_cube_quality[i];
-        }
-
-        this.query_quality = new Query({
-            cube: {
-                connection: parsed_cube_quality[0],
-                catalog: parsed_cube_quality[1],
-                schema: (parsed_cube_quality[2] == "null" ? "" : parsed_cube_quality[2]) ,
-                name: decodeURIComponent(cube_quality)
+        if(obj.selected_cube_quality){
+            obj.metadata = Saiku.session.sessionworkspace.cube[obj.selected_cube_quality];
+            var parsed_cube_quality = obj.selected_cube_quality.split('/');
+            var cube_quality = parsed_cube_quality[3];
+            for (var i = 4, len = parsed_cube_quality.length; i < len; i++) {
+                cube_quality += "/" + parsed_cube_quality[i];
             }
-        }, {
-            workspace: obj
-        });
-
-        // Save the query to the server and init the UI
-        obj.query_quality = this.query_quality;
-        obj.query_quality.save({},{ data: { json: JSON.stringify(this.query_quality.model) }, async: false });
-        obj.init_quality_query();
+    
+            this.query_quality = new Query({
+                cube: {
+                    connection: parsed_cube_quality[0],
+                    catalog: parsed_cube_quality[1],
+                    schema: (parsed_cube_quality[2] == "null" ? "" : parsed_cube_quality[2]) ,
+                    name: decodeURIComponent(cube_quality)
+                }
+            }, {
+                workspace: obj
+            });
+    
+            // Save the query to the server and init the UI
+            obj.query_quality = this.query_quality;
+            obj.query_quality.save({},{ data: { json: JSON.stringify(this.query_quality.model) }, async: false });
+            obj.init_quality_query();
+        }
     },
 
 
@@ -732,10 +734,8 @@ var Workspace = Backbone.View.extend({
 
             var showQuality = true;
             //Important Part
-            if (showQuality){
-                var parsed_cube = this.selected_cube.split('/');
-                var selected_qualityCube = this.get_quality_cube(parsed_cube[0]);
-                var cubeModel_quality = Saiku.session.sessionworkspace.cube[selected_qualityCube]
+            if (showQuality && this.selected_cube_quality){
+                var cubeModel_quality = Saiku.session.sessionworkspace.cube[this.selected_cube_quality]
                 this.dimension_list_quality = new DimensionList({
                     workspace: this,
                     cube: cubeModel_quality

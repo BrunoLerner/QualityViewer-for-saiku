@@ -1302,19 +1302,10 @@ SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, works
 
 SaikuTableRenderer.prototype.getCellQualityColor = function(val) {
     if(val !== undefined){
-        // var green = 75 + 180*val/150;
-        // if (/* red >= 0 && red <= 255 && */ green >= 0 && green <=255){
-        //     return " style='font-weight:bold;background-color: rgb(0, " + green + ", 0)' ";
-        // }  
-        if(val == 1){
-            return "style='font-weight:bold;background-color: rgb(224, 38, 38)'"
-        } else if (val == 2) {
-            return " style='font-weight:bold;background-color: rgb(239, 93, 93)' "
-        } else if (val == 3) {
-            return " style='font-weight:bold;background-color: rgb(48, 219, 139)' "    
-        } else if (val == 4) {
-            return " style='font-weight:bold;background-color: rgb(24, 247, 84)' "
-        }
+        var green = 130 + 125*val/5;
+        if (green >= 0 && green <=255){
+            return " style='font-weight:bold;background-color: rgb(0, " + green + ", 0)' ";
+        } 
     }
     return " style='font-weight:bold;background-color: rgb(255, 255, 255)' "
 };
