@@ -732,26 +732,6 @@ var Workspace = Backbone.View.extend({
             // Create new DimensionList and MeasureList
             var cubeModel = Saiku.session.sessionworkspace.cube[this.selected_cube];
 
-            var showQuality = true;
-            //Important Part
-            if (showQuality && this.selected_cube_quality){
-                var cubeModel_quality = Saiku.session.sessionworkspace.cube[this.selected_cube_quality]
-                this.dimension_list_quality = new DimensionList({
-                    workspace: this,
-                    cube: cubeModel_quality
-                });
-                // this.dimension_list_quality.render();
-    
-                // $(this.el).find('.metadata_attribute_wrapper').html('').append($(this.dimension_list_quality.el));
-    
-                if (!cubeModel_quality.has('data')) {
-                    cubeModel_quality.fetch({ success: function() {
-                        self.trigger('cube:loaded');
-                    }});
-                }
-                // this.trigger('query:new', { workspace: this });
-            }
-            
             this.dimension_list = new DimensionList({
                 workspace: this,
                 cube: cubeModel
