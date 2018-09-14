@@ -1305,29 +1305,29 @@ SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, works
 };
 
 SaikuTableRenderer.prototype.getCellQualityColor = function(val, qualityColor) {
-    // For god sakes, refactor this
 
+    var style = " style='font-weight:bold;background-color: rgb(255, 255, 255)' ";
+    var beginRGB = [], finalRGB = [];
+    //Green  and blue here stands actually for 2 types of gradients
+    // You can do it more generically
     if (qualityColor === "green"){
-        if(val !== undefined){
-            var  beginRed = 221,finalRed = 107, beginGreen = 62 ,finalGreen = 229, beginBlue = 84, finalBlue = 133;
-            var red = finalRed + (finalRed-beginRed)*val 
-            var green = finalGreen + (finalGreen - beginGreen)*val;
-            var blue = finalBlue + (finalBlue - beginBlue)*val
-            console.log(red,green,blue)
-            return " style='font-weight:bold;background-color: rgb("+red+", "+green+", "+blue+")' ";      
-        }
-        return " style='font-weight:bold;background-color: rgb(255, 255, 255)' "
+        beginRGB = [221,62,229];
+        finalRGB = [107,229,133];
     } else if(qualityColor === "blue") {
-        if(val !== undefined && val >= 0 && val <=1){
-            var blue = 130 + 125*val;
-            if (blue >= 0 && blue <=255){
-                return " style='font-weight:bold;background-color: rgb(0, 0, " + blue + ")' ";
-            } 
-        }
-    } else {
-        return " style='font-weight:bold;background-color: rgb(255, 255, 255)' "
+        beginRGB = [221,62,229];
+        finalRGB = [107,229,133];
+    } 
+
+    if(val !== undefined){
+        var i = 0;
+        var red = finalRGB[i] + (finalRGB[i]-beginRGB[i])*val 
+        i = 1;
+        var green = finalRGB[i] + (finalRGB[i]-beginRGB[i])*val 
+        i = 2;
+        var blue = finalRGB[i] + (finalRGB[i]-beginRGB[i])*val 
+        style =  " style='font-weight:bold;background-color: rgb("+red+", "+green+", "+blue+")' ";      
     }
-    
+    return style
 };
 
 SaikuTableRenderer.prototype.renderSummary = function(data) {
