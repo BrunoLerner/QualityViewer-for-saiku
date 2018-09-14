@@ -1305,26 +1305,25 @@ SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, works
 };
 
 SaikuTableRenderer.prototype.getCellQualityColor = function(val, qualityColor) {
-
     var style = " style='font-weight:bold;background-color: rgb(255, 255, 255)' ";
     var beginRGB = [], finalRGB = [];
     //Green  and blue here stands actually for 2 types of gradients
     // You can do it more generically
     if (qualityColor === "green"){
-        beginRGB = [221,62,229];
+        beginRGB = [221,62,84];
         finalRGB = [107,229,133];
     } else if(qualityColor === "blue") {
-        beginRGB = [221,62,229];
-        finalRGB = [107,229,133];
+        beginRGB = [255,130,53];
+        finalRGB = [48,232,191];
     } 
 
-    if(val !== undefined){
+    if(val !== undefined && val != ""){
         var i = 0;
-        var red = finalRGB[i] + (finalRGB[i]-beginRGB[i])*val 
+        var red = finalRGB[i] + (finalRGB[i]-beginRGB[i])*(val-1)/2 
         i = 1;
-        var green = finalRGB[i] + (finalRGB[i]-beginRGB[i])*val 
+        var green = finalRGB[i] + (finalRGB[i]-beginRGB[i])*(val-1)/2
         i = 2;
-        var blue = finalRGB[i] + (finalRGB[i]-beginRGB[i])*val 
+        var blue = finalRGB[i] + (finalRGB[i]-beginRGB[i])*(val-1)/2
         style =  " style='font-weight:bold;background-color: rgb("+red+", "+green+", "+blue+")' ";      
     }
     return style
