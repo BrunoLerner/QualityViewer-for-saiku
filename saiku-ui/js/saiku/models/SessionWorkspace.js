@@ -45,7 +45,6 @@ var SessionWorkspace = Backbone.Model.extend({
   },
 
   refresh: function() {
-    console.log('have been refreshed');
     if (typeof localStorage !== 'undefined' && localStorage) {
       localStorage.clear();
     }

@@ -3,6 +3,7 @@ var QualitySensor = Backbone.Model.extend({
     this.workspace = args.workspace;
     this.workspace.showQuality = false;
     this.modal = undefined;
+    this.selectedQualityMetric = undefined;
     // Add quality sensor button
     if (document && document['addEventListener']) {
       this.add_button();
@@ -36,6 +37,9 @@ var QualitySensor = Backbone.Model.extend({
     }
     else if (this.workspace.showQuality) {
       this.modal.render().open();
+    }
+    else {
+      this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
     }
 
     // Change style of button

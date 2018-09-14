@@ -551,7 +551,6 @@ var Workspace = Backbone.View.extend({
 
         var parsed_cube = obj.selected_cube.split('/');
         obj.selected_cube_quality = this.get_quality_cube(parsed_cube[0]);
-    
         if(obj.selected_cube_quality){
             obj.metadata = Saiku.session.sessionworkspace.cube[obj.selected_cube_quality];
             var parsed_cube_quality = obj.selected_cube_quality.split('/');
@@ -772,7 +771,7 @@ var Workspace = Backbone.View.extend({
             return
         }
 
-        var cubeModel_quality = Saiku.session.sessionworkspace.cube[obj.selected_quality_cube]
+        var cubeModel_quality = Saiku.session.sessionworkspace.cube[this.selected_cube_quality]
         this.dimension_list_quality = new DimensionList({
             workspace: this,
             cube: cubeModel_quality
