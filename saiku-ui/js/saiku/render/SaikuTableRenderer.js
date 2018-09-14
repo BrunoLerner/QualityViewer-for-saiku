@@ -1309,14 +1309,16 @@ SaikuTableRenderer.prototype.getCellQualityColor = function(val, qualityColor) {
 
     if (qualityColor === "green"){
         if(val !== undefined){
-            var green = 130 + 125*val;
-            if (green >= 0 && green <=255){
-                return " style='font-weight:bold;background-color: rgb(0, " + green + ", 0)' ";
-            } 
+            var  beginRed = 221,finalRed = 107, beginGreen = 62 ,finalGreen = 229, beginBlue = 84, finalBlue = 133;
+            var red = finalRed + (finalRed-beginRed)*val 
+            var green = finalGreen + (finalGreen - beginGreen)*val;
+            var blue = finalBlue + (finalBlue - beginBlue)*val
+            console.log(red,green,blue)
+            return " style='font-weight:bold;background-color: rgb("+red+", "+green+", "+blue+")' ";      
         }
         return " style='font-weight:bold;background-color: rgb(255, 255, 255)' "
     } else if(qualityColor === "blue") {
-        if(val !== undefined){
+        if(val !== undefined && val >= 0 && val <=1){
             var blue = 130 + 125*val;
             if (blue >= 0 && blue <=255){
                 return " style='font-weight:bold;background-color: rgb(0, 0, " + blue + ")' ";
