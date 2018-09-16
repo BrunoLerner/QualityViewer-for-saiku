@@ -54,6 +54,9 @@ var Workspace = Backbone.View.extend({
         this.drop_zones = new WorkspaceDropZone({ workspace: this });
         this.drop_zones.render();
 
+        // Create Quality Summary zone
+        this.quality_summary = new QualitySummary({ workspace: this });
+
         // Generate table
         this.table = new Table({ workspace: this });
 
@@ -186,7 +189,6 @@ var Workspace = Backbone.View.extend({
         // Load template
         var self = this;
         $(this.el).html(this.template());
-
         this.processing = $(this.el).find('.query_processing');
 
         if (this.isReadOnly || Settings.MODE && (Settings.MODE == "view" || Settings.MODE == "table" || Settings.MODE == "map" || Settings.MODE == "chart")) {

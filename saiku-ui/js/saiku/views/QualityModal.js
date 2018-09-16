@@ -70,6 +70,8 @@ var QualityModal = Modal.extend({
     });
     var uniqueMeasuresArray = Array.from(uniqueMeasures.keys());
 
+    console.log(this.workspace.quality_summary);
+    this.workspace.quality_summary.render();
     // Load template
     this.message = this.template_modal({
       measures: uniqueMeasuresArray,
@@ -94,18 +96,15 @@ var QualityModal = Modal.extend({
     this.selectedQualityMetric = qualityMetric;
     this.save(event);
   },
-
   save: function(event) {
     // Generate dimension name from selectedDataMeasures and selectedQualityMetric
     var selectedDataMeasures = this.workspace.query.helper.model().queryModel.details.measures;
     var qualityMeasure = this.selectedQualityMetric + '_' + selectedDataMeasures[0].name;
-
-    console.log(document.getElementsByClassName('table_wrapper'));
-
     var gradient = document.createElement('div');
     var text = document.createElement('LABEL');
     var t = document.createTextNode(this.selectedQualityMetric);
 
+    this.workspace.quality_summary.render();
     text.appendChild(t);
 
     gradient.id = 'quality-gradient';

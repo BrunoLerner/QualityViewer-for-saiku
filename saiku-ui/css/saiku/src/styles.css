@@ -2312,7 +2312,14 @@ span.cancel_search:hover {
 	#header, .sidebar, .workspace_fields, .workspace_toolbar { display: none !important; }
 }
 
+/* Quality Summary  */
+.quality_summary {
+	overflow: auto;
+	padding: 10px;
+	width: 240px;
+	float:left;
 
+}
 /* Chart toolbar */
 .chart_toolbar {
 	background: #F9F9F9;

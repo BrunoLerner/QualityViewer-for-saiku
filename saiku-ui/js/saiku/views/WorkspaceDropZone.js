@@ -46,7 +46,6 @@ var WorkspaceDropZone = Backbone.View.extend({
   render: function() {
     var self = this;
     // Generate drop zones from template
-
     $(this.el).html(this.template());
 
     // Activate drop zones

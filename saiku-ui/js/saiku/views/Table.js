@@ -558,11 +558,7 @@ var Table = Backbone.View.extend({
     if (args.data === null || (args.data.height && args.data.height === 0)) {
       return;
     }
-
-    if (args.data.query.cube.name.startsWith('Q-')) {
-      return;
-    }
-
+    
     this.clearOut();
     $(this.el).html('Rendering ' + args.data.width + ' columns and ' + args.data.height + ' rows...');
 
