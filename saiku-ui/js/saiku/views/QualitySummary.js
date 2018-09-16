@@ -21,7 +21,6 @@ var QualitySummary = Backbone.View.extend({
   template: function() {
     var template = $('#template-quality-summary').html() || '';
 
-    console.log(template);
     return _.template(template)();
   },
 
@@ -37,58 +36,53 @@ var QualitySummary = Backbone.View.extend({
 
   render: function() {
     var self = this;
-    // Generate drop zones from template
 
-    console.log('vou renderizar');
-    console.log(this.el);
-    $(this.el).html(this.template());
+    var selectedMetric = this.workspace.qualitySensor.selectedQualityMetric;
+    // You can do it more generically
+    var gradienteRGB = 'linear-gradient(to left, #6be585 0%, #dd3e54 100%)';
+
+    if (selectedMetric === 'completude') {
+      beginRGB = [255, 130, 53];
+      finalRGB = [48, 232, 191];
+      gradienteRGB = 'linear-gradient(to left, #22c1c3 0%, #fdbb2d 100%)';
+    }
+    var gradient = document.createElement('div');
+    var text = document.createElement('LABEL');
+    var t = document.createTextNode(selectedMetric);
+
+    text.appendChild(t);
+
+    gradient.id = 'quality-gradient';
+    gradient.style.position = 'relative';
+    gradient.style.marginTop = '10%';
+    gradient.style.marginBottom = '100%';
+    gradient.style.left = '10%';
+    gradient.style.width = '80%';
+    gradient.style.height = '30px';
+    // Change color gradient according to selected metric
+    gradient.style.background = gradienteRGB;
+
+    text.style.fontSize = '15px';
+    text.style.position = 'relative';
+    text.style.left = '30%';
+
     // Show quality summary
+
+    $(this.el).html(this.template());
+
+    // Show selected Metric Name
+    $(this.el)
+      .find('.fields_list_body')
+      .append(text);
+
+    // Show color gradient
+    $(this.el)
+      .find('.fields_list_body')
+      .append(gradient);
 
     $(this.workspace.el)
       .find('.workspace_editor')
       .append($(this.el));
-
-    // Activate drop zones
-    // $(this.el)
-    //   .find('.fields_list_body.details ul.connectable')
-    //   .sortable({
-    //     items: '> li',
-    //     opacityg: 0.6,
-    //     placeholder: 'placeholder',
-    //     tolerance: 'pointer',
-    //     containment: $(self.workspace.el),
-    //     start: function(event, ui) {
-    //       ui.placeholder.text(ui.helper.text());
-    //     }
-    //   });
-
-    // $(this.el)
-    //   .find('.axis_fields ul.connectable')
-    //   .sortable({
-    //     connectWith: $(self.el).find('.axis_fields ul.connectable'),
-    //     forcePlaceholderSize: false,
-    //     forceHelperSize: true,
-    //     items: 'li.selection',
-    //     opacity: 0.6,
-    //     placeholder: 'placeholder',
-    //     tolerance: 'touch',
-    //     cursorAt: { top: 10, left: 60 },
-    //     containment: $(self.workspace.el),
-    //     start: function(event, ui) {
-    //       var hierarchy = $(ui.helper)
-    //         .find('a')
-    //         .parent()
-    //         .parent()
-    //         .attr('hierarchycaption');
-
-    //       ui.placeholder.text(hierarchy);
-    //       $(ui.helper).css({ width: 'auto', height: 'auto' });
-    //       $(self.el)
-    //         .find('.axis_fields ul.hierarchy li.d_level:visible')
-    //         .addClass('temphide')
-    //         .hide();
-    //     }
-    //   });
 
     return this;
   },

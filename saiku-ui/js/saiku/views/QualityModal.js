@@ -47,8 +47,6 @@ var QualityModal = Modal.extend({
 			'</div>'
   ),
 
-  selectedQualityMetric: null,
-
   initialize: function(args) {
     var self = this;
 
@@ -70,8 +68,6 @@ var QualityModal = Modal.extend({
     });
     var uniqueMeasuresArray = Array.from(uniqueMeasures.keys());
 
-    console.log(this.workspace.quality_summary);
-    this.workspace.quality_summary.render();
     // Load template
     this.message = this.template_modal({
       measures: uniqueMeasuresArray,
@@ -93,38 +89,14 @@ var QualityModal = Modal.extend({
 
     // You dont need to set it in 2 places
     this.workspace.qualitySensor.selectedQualityMetric = qualityMetric;
-    this.selectedQualityMetric = qualityMetric;
     this.save(event);
   },
   save: function(event) {
     // Generate dimension name from selectedDataMeasures and selectedQualityMetric
     var selectedDataMeasures = this.workspace.query.helper.model().queryModel.details.measures;
-    var qualityMeasure = this.selectedQualityMetric + '_' + selectedDataMeasures[0].name;
-    var gradient = document.createElement('div');
-    var text = document.createElement('LABEL');
-    var t = document.createTextNode(this.selectedQualityMetric);
+    var qualityMeasure = this.workspace.qualitySensor.selectedQualityMetric + '_' + selectedDataMeasures[0].name;
 
     this.workspace.quality_summary.render();
-    text.appendChild(t);
-
-    gradient.id = 'quality-gradient';
-    gradient.style.width = '350px';
-    gradient.style.height = '30px';
-    gradient.style.background = 'linear-gradient(to left, #dd3e54 0%, #6be585 100%)';
-    gradient.style.color = 'white';
-    // gradient.innerHTML = this.selectedQualityMetric;
-    gradient.style.position = 'relative';
-    gradient.style.left = '700px';
-    gradient.style.bottom = '700px';
-
-    text.style.position = 'relative';
-    text.style.left = '700px';
-    text.style.bottom = '700px';
-    text.style.font = 'normal 12px courier';
-
-    document.getElementById('tab_panel').insertBefore(text, document.getElementById('quality-gradient'));
-
-    document.getElementById('tab_panel').appendChild(gradient);
 
     // botar o nome da métrica que o usuário deseja ver
     var measure_quality = {
