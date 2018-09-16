@@ -42,6 +42,11 @@ var QualitySummary = Backbone.View.extend({
     console.log('vou renderizar');
     console.log(this.el);
     $(this.el).html(this.template());
+    // Show quality summary
+
+    $(this.workspace.el)
+      .find('.workspace_editor')
+      .append($(this.el));
 
     // Activate drop zones
     // $(this.el)
