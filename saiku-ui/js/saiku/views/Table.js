@@ -28,7 +28,6 @@ var Table = Backbone.View.extend({
   initialize: function(args) {
     this.workspace = args.workspace;
     this.renderer = new SaikuTableRenderer();
-    // this.qualityMetrics = args.qualityMetrics;
 
     // Bind table rendering to query result event
     _.bindAll(this, 'render', 'process_data', 'collapse', 'expand');
@@ -471,7 +470,6 @@ var Table = Backbone.View.extend({
                   self.workspace.query.helper.clearMeasures();
                   self.workspace.query.helper.includeMeasure(measure);
                   self.workspace.sync_query();
-                  console.log('aqui');
                   self.workspace.query.run();
                 }
                 else {
@@ -481,7 +479,6 @@ var Table = Backbone.View.extend({
                   });
                   hierarchy.levels[l_name].selection = { type: 'INCLUSION', members: updates };
                   self.workspace.drop_zones.synchronize_query();
-                  console.log('aqui');
                   self.workspace.query.run(true);
                 }
               }
@@ -508,7 +505,6 @@ var Table = Backbone.View.extend({
 
               self.workspace.query.helper.removeLevel(h, k);
               self.workspace.drop_zones.synchronize_query();
-              console.log('aqui');
               self.workspace.query.run(true);
             }
             else if (key.substring(0, key.indexOf('-')) === 'keep') {
@@ -526,7 +522,6 @@ var Table = Backbone.View.extend({
                 hierarchy.levels[l_caption].selection = { type: 'INCLUSION', members: updates };
                 self.workspace.query.helper.includeLevel(axis, h, k, null);
                 self.workspace.drop_zones.synchronize_query();
-                console.log('aqui');
                 self.workspace.query.run(true);
               }
             }
@@ -536,7 +531,6 @@ var Table = Backbone.View.extend({
 
               self.workspace.query.helper.includeLevel(axis, h, k, null);
               self.workspace.drop_zones.synchronize_query();
-              console.log('aqui');
               self.workspace.query.run(true);
             }
           },
@@ -548,7 +542,6 @@ var Table = Backbone.View.extend({
   },
 
   render: function(args, block) {
-    console.log(this.workspace)
     if (
       typeof args === 'undefined' ||
 			typeof args.data === 'undefined' ||
@@ -565,11 +558,7 @@ var Table = Backbone.View.extend({
       return;
     }
 
-    if (args.data.query.cube.name.startsWith('Q-')) {
-      return;
-    }
-
-    this.clearOut();
+    // this.clearOut();
     $(this.el).html('Rendering ' + args.data.width + ' columns and ' + args.data.height + ' rows...');
 
     // Render the table without blocking the UI thread
@@ -603,9 +592,6 @@ var Table = Backbone.View.extend({
     // Append the table
     this.clearOut();
     $(this.el).html('<table></table>');
-
-    var showQuality = true;
-
     if (this.workspace.showQuality) {
       var contents = this.renderer.renderWithQuality(data, this.workspace, {
         hideEmpty: hideEmptyRows,

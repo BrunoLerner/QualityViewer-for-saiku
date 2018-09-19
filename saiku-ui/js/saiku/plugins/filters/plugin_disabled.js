@@ -142,7 +142,6 @@ var Filters = Backbone.View.extend({
       this.render_menu();
     }
     else {
-      console.log('aqui');
       this.workspace.query.action.del('/filter', {
         success: this.workspace.query.run,
         data: this.currentFilter

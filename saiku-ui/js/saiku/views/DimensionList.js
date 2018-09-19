@@ -164,12 +164,10 @@ var DimensionList = Backbone.View.extend({
   },
 
   select_dimension: function(event, ui) {
-    var showQuality = true;
-
     if (this.workspace.query.model.type != 'QUERYMODEL') {
       return;
     }
-    if (this.workspace.query_quality.model.type != 'QUERYMODEL' && showQuality) {
+    if (this.workspace.query_quality && this.workspace.query_quality.model.type != 'QUERYMODEL') {
       return;
     }
 
@@ -220,33 +218,34 @@ var DimensionList = Backbone.View.extend({
       this.workspace.toolbar.$el.find('.group_parents').removeClass('on');
       this.workspace.toolbar.group_parents();
       this.workspace.query.helper.includeLevelCalculatedMember(axisName, hierarchy, level, uniqueName);
-      if (showQuality) {
+      // Always add same dimensions to quality query
+      if (this.workspace.query_quality) {
         this.workspace.query_quality.helper.includeLevelCalculatedMember(axisName, hierarchy, level, uniqueName);
       }
     }
     else {
       this.workspace.query.helper.includeLevel(axisName, hierarchy, level);
-      if (showQuality) {
+      // Always add same dimensions to quality query
+      if (this.workspace.query_quality) {
         this.workspace.query_quality.helper.includeLevel(axisName, hierarchy, level);
       }
     }
 
     // Trigger event when select dimension
     Saiku.session.trigger('dimensionList:select_dimension', { workspace: this.workspace });
-
     this.workspace.sync_query();
     this.workspace.query.run();
 
-    if (showQuality) {
-      this.workspace.query_quality.run();
+    // Always add same dimensions to quality query
+    if (this.workspace.query_quality) {
+      // this.workspace.query_quality.run();
     }
+
     event.preventDefault();
     return false;
   },
 
   select_measure: function(event, ui) {
-    var showQuality = true;
-
     if (
       $(event.target)
         .parent()
@@ -262,22 +261,16 @@ var DimensionList = Backbone.View.extend({
       type: $target.find('a').attr('type')
     };
 
-    // console.log(measure);
+    // botar o nome da métrica que o usuário deseja ver
     var measure_quality = {
       name: 'Qualidade',
       type: $target.find('a').attr('type')
     };
 
     this.workspace.query.helper.includeMeasure(measure);
-    if (showQuality) {
-      this.workspace.query_quality.helper.includeMeasure(measure_quality);
-    }
     this.workspace.sync_query();
     this.workspace.query.run();
 
-    if (showQuality) {
-      this.workspace.query_quality.run();
-    }
     event.preventDefault();
     return false;
   },

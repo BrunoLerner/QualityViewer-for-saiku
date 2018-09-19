@@ -2,6 +2,8 @@ var QualitySensor = Backbone.Model.extend({
   initialize: function(args) {
     this.workspace = args.workspace;
     this.workspace.showQuality = false;
+    this.modal = undefined;
+    this.selectedQualityMetric = undefined;
     // Add quality sensor button
     if (document && document['addEventListener']) {
       this.add_button();
@@ -9,7 +11,7 @@ var QualitySensor = Backbone.Model.extend({
   },
   add_button: function() {
     var button = $(
-      '<a href="#qualitySensor" id="search_icon" class="fullscreen button disabled_toolbar i18n" title="Quality Sensor"></a>'
+      '<a href="#qualitySensor" id="search_icon" class="i18n qualitySensor button sprite i18n_failed i18n_translated" title="Quality Sensor"></a>'
     ).css({
       'background-image': "url('js/saiku/plugins/qualitySensor/search.png')",
       'background-repeat': 'no-repeat',
@@ -24,13 +26,23 @@ var QualitySensor = Backbone.Model.extend({
     this.workspace.toolbar.qualitySensor = this.onClickedButton;
   },
   onClickedButton: function() {
-    console.log('clicked');
     // Change flag
     this.workspace.showQuality = !this.workspace.showQuality;
-    // Change color of button
 
-    // Re run queries
-    this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
+    if (this.modal == undefined) {
+      this.modal = new QualityModal({
+        workspace: this.workspace
+      });
+      this.modal.render().open();
+    }
+    else if (this.workspace.showQuality) {
+      this.modal.render().open();
+    }
+    else {
+      this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
+    }
+
+    // Change style of button
   }
 });
 
