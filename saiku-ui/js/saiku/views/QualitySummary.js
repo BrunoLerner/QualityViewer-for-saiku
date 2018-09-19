@@ -45,9 +45,8 @@ var QualitySummary = Backbone.View.extend({
 
     text.appendChild(t);
 
-    text.style.fontSize = '15px';
+    text.style.fontSize = '20px';
     text.style.position = 'relative';
-    text.style.left = '30%';
 
     $(this.el).html(this.template());
     // Show selected Metric Name
@@ -65,6 +64,7 @@ var QualitySummary = Backbone.View.extend({
       biDirectionalGradient.style.left = '10%';
       biDirectionalGradient.style.width = '80%';
       biDirectionalGradient.style.height = '30px';
+      biDirectionalGradient.style.borderRadius = '5px';
       biDirectionalGradient.style.background = 'linear-gradient(to left, #dd3e54 0%, #6be585 50%, #dd3e54 100%)';
       // Show sine graph for corretude
       var sineGraph = document.createElement('IMG');
@@ -91,6 +91,7 @@ var QualitySummary = Backbone.View.extend({
       gradient.style.left = '10%';
       gradient.style.width = '80%';
       gradient.style.height = '30px';
+      gradient.style.borderRadius = '5px';
       gradient.style.background = 'linear-gradient(to left, #22c1c3 0%, #fdbb2d 100%)';
 
       // Show color gradient
