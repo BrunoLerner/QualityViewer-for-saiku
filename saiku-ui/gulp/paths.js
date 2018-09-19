@@ -25,9 +25,8 @@ module.exports = {
 
   browserSync: {
     html: './**/*.html',
-    cssBase: './css/**/*.css',
-    cssSaiku: './js/saiku/**/*.css',
-    js: './js/saiku/**/*.js',
+    css: './css/**/*.css',
+    js: './js/**/*.js',
     img: './images/**/*'
   }
 };

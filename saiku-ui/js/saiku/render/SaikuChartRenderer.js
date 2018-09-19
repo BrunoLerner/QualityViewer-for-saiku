@@ -1,5 +1,4 @@
-var SaikuChartRenderer = function(data, options) {
-    this.workspace = options.workspace;
+var SaikuChartRenderer = function (data, options) {
     this.rawdata = data;
     this.cccOptions = {};
 
@@ -126,20 +125,14 @@ SaikuChartRenderer.prototype.render = function () {
 };
 
 SaikuChartRenderer.prototype.switch_chart = function (key, override) {
-    if((override != null || override != undefined) && (override.chartDefinition!=null || override.chartDefinition != undefined)) {
-        this.chartDefinition = override.chartDefinition;
-        if(override.chartDefinition.type!=undefined) {
-            this.type = override.chartDefinition.type;
+    if(override != null || override != undefined){
+        if(override.chartDefinition != null || override.chartDefinition != undefined) {
+            this.chartDefinition = override.chartDefinition;
         }
         if(override.workspace !=null || override.workspace != undefined){
-                this.workspace = override.workspace;
-        }
-
-        if(override.hasProcessed != undefined){
-            this.hasProcessed = override.hasProcessed;
+            this.workspace = override.workspace;
         }
     }
-
     var keyOptions =
     {
         "stackedBar": {
@@ -226,17 +219,12 @@ SaikuChartRenderer.prototype.switch_chart = function (key, override) {
         this.type = key;
         var o = keyOptions[key];
         this.cccOptions = this.getQuickOptions(o);
-        if(this.chartDefinition!=undefined) {
-            this.chartDefinition.type = o.type;
-        }
         this.define_chart();
         if (this.hasProcessed) {
             this.render();
         }
     } else {
-        if (key !== 'charteditor') {
-            alert("Do not support chart type: '" + key + "'");
-        }
+        alert("Do not support chart type: '" + key + "'");
     }
 
 };
@@ -379,7 +367,7 @@ SaikuChartRenderer.prototype.cccOptionsDefault = {
             }
         },
         clickable: false,
-        plots: []
+        plots: []        
     },
 
     LineChart: {
@@ -588,7 +576,7 @@ SaikuChartRenderer.prototype.define_chart = function (displayOptions) {
         hoverable: hoverable,
         animate: animate
     }, this.chartDefinition);
-//  if(this.chartDefinition != undefined && this.chartDefinition.legend == true){
+//	if(this.chartDefinition != undefined && this.chartDefinition.legend == true){
     if (self.zoom) {
         var l = runtimeChartDefinition.legend;
         runtimeChartDefinition = _.extend(runtimeChartDefinition, zoomDefinition);
@@ -598,7 +586,7 @@ SaikuChartRenderer.prototype.define_chart = function (displayOptions) {
     }
 //}
 
-    if (runtimeChartDefinition.type == "TreemapChart" && runtimeChartDefinition.legend) {
+    if (runtimeChartDefinition.type == "TreemapChart") {
         runtimeChartDefinition.legend.scenes.item.labelText = function () {
             var indent = "";
             var group = this.group;
@@ -676,7 +664,7 @@ SaikuChartRenderer.prototype.define_chart = function (displayOptions) {
         }
 
         if (this.data.metadata.length > 2) {
-            runtimeChartDefinition.readers = this.data.metadata[0].colName + ', ' +
+            runtimeChartDefinition.readers = this.data.metadata[0].colName + ', ' + 
                                              this.data.metadata[1].colName + ', ' +
                                              this.data.metadata[2].colName;
 
@@ -1039,7 +1027,7 @@ SaikuChartRenderer.prototype.drawRadarChart = function (o) {
                 g.selectAll(".nodes")
                     .data(y, function(j, i) {
                         dataValues.push([
-                            cfg.w/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)),
+                            cfg.w/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)), 
                             cfg.h/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total))
                         ]);
                     });
@@ -1064,7 +1052,7 @@ SaikuChartRenderer.prototype.drawRadarChart = function (o) {
                         z = "polygon."+d3.select(this).attr("class");
                         g.selectAll("polygon")
                             .transition(200)
-                            .style("fill-opacity", 0.1);
+                            .style("fill-opacity", 0.1); 
                             g.selectAll(z)
                             .transition(200)
                             .style("fill-opacity", .7);
@@ -1088,7 +1076,7 @@ SaikuChartRenderer.prototype.drawRadarChart = function (o) {
                     .attr("alt", function(j){return Math.max(j.value, 0)})
                     .attr("cx", function(j, i){
                         dataValues.push([
-                            cfg.w/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)),
+                            cfg.w/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total)), 
                             cfg.h/2*(1-(parseFloat(Math.max(j.value, 0))/cfg.maxValue)*cfg.factor*Math.cos(i*cfg.radians/total))
                         ]);
                         return cfg.w/2*(1-(Math.max(j.value, 0)/cfg.maxValue)*cfg.factor*Math.sin(i*cfg.radians/total));
@@ -1112,7 +1100,7 @@ SaikuChartRenderer.prototype.drawRadarChart = function (o) {
                         z = "polygon."+d3.select(this).attr("class");
                         g.selectAll("polygon")
                             .transition(200)
-                            .style("fill-opacity", 0.1);
+                            .style("fill-opacity", 0.1); 
                         g.selectAll(z)
                             .transition(200)
                             .style("fill-opacity", .7);
@@ -1149,7 +1137,7 @@ SaikuChartRenderer.prototype.drawRadarChart = function (o) {
                 .attr("width", w)
                 .attr("height", h);
 
-            //Initiate Legend
+            //Initiate Legend 
             var legend = svg.append("g")
                 .attr("class", "legend")
                 .attr("height", w)
@@ -1164,11 +1152,7 @@ SaikuChartRenderer.prototype.drawRadarChart = function (o) {
                 .attr("y", function(d, i){ return i * 20;})
                 .attr("width", 10)
                 .attr("height", 10)
-                .style("fill", function(d, i){ 
-                    var green = 75 + 180*i/150;
-                    var rgb = "rgb(0, " + green + ", 0)"
-                    return rgb;
-                });
+                .style("fill", function(d, i){ return colorscale(i);});
 
 
             //Create text next to squares
@@ -1251,7 +1235,7 @@ SaikuChartRenderer.prototype.drawRadarChart = function (o) {
     //Call function to draw the Radar chart
     //Will expect that data is in %'s
     RadarChart.draw(canvasIdSelector, d, mycfg, LegendOptions);
-
+    
     this.chart = {
         render: function() {
             RadarChart.draw(canvasIdSelector, d, mycfg, LegendOptions);
