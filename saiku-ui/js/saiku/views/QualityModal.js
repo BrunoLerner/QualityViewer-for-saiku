@@ -92,19 +92,28 @@ var QualityModal = Modal.extend({
     this.save(event);
   },
   save: function(event) {
+    var self = this;
+
     // Generate dimension name from selectedDataMeasures and selectedQualityMetric
     var selectedDataMeasures = this.workspace.query.helper.model().queryModel.details.measures;
-    var qualityMeasure = this.workspace.qualitySensor.selectedQualityMetric + '_' + selectedDataMeasures[0].name;
+    var qualityMeasure = [];
+
+    selectedDataMeasures.forEach(function(dataMeasure) {
+      qualityMeasure.push(self.workspace.qualitySensor.selectedQualityMetric + '_' + dataMeasure.name);
+    });
 
     this.workspace.quality_summary.render();
 
-    // botar o nome da métrica que o usuário deseja ver
-    var measure_quality = {
-      name: qualityMeasure,
-      type: 'EXACT'
-    };
+    qualityMeasure.forEach(function(qualityMeasure) {
+      // botar o nome da métrica que o usuário deseja ver
+      var measure_quality = {
+        name: qualityMeasure,
+        type: 'EXACT'
+      };
 
-    this.workspace.query_quality.helper.includeMeasure(measure_quality);
+      self.workspace.query_quality.helper.includeMeasure(measure_quality);
+    });
+
     this.workspace.sync_query();
     this.workspace.query_quality.run();
     var self = this;
