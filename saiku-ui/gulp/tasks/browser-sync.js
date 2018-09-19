@@ -28,8 +28,7 @@ module.exports = gulp.task('browser-sync', function() {
   var files = [
     paths.browserSync.html,
     paths.browserSync.js,
-    paths.browserSync.cssBase,
-    paths.browserSync.cssSaiku,
+    paths.browserSync.css,
     paths.browserSync.img,
   ];
   var proxyUrl = paths.nodeProxy.protocol + '://' + paths.nodeProxy.hostname +
