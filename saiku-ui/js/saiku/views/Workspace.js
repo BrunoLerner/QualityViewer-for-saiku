@@ -54,6 +54,9 @@ var Workspace = Backbone.View.extend({
         this.drop_zones = new WorkspaceDropZone({ workspace: this });
         this.drop_zones.render();
 
+        // Create Quality Summary zone
+        this.quality_summary = new QualitySummary({ workspace: this });
+
         // Generate table
         this.table = new Table({ workspace: this });
 
@@ -186,7 +189,6 @@ var Workspace = Backbone.View.extend({
         // Load template
         var self = this;
         $(this.el).html(this.template());
-
         this.processing = $(this.el).find('.query_processing');
 
         if (this.isReadOnly || Settings.MODE && (Settings.MODE == "view" || Settings.MODE == "table" || Settings.MODE == "map" || Settings.MODE == "chart")) {
@@ -426,6 +428,10 @@ var Workspace = Backbone.View.extend({
             $(obj.el).find('.measure_tree').html('');
             return false;
         }
+
+        // Always create quality query
+        this.create_new_quality_query(obj) 
+        
         obj.metadata = Saiku.session.sessionworkspace.cube[obj.selected_cube];
         var parsed_cube = obj.selected_cube.split('/');
         var cube = parsed_cube[3];
@@ -514,12 +520,65 @@ var Workspace = Backbone.View.extend({
         }
 
         obj.query = this.query;
-
+        
         // Save the query to the server and init the UI
         obj.query.save({},{ data: { json: JSON.stringify(this.query.model) }, async: false });
         obj.init_query();
-
     },
+
+    // Receives a workspace as param
+    create_new_quality_query: function(obj){
+        if (obj.query_quality) {
+            obj.query_quality.destroy();
+            obj.query_quality.clear();
+            if (obj.query_quality.name) {
+                obj.query_quality.name = undefined;
+                obj.update_caption(true);
+            }
+            obj.query_quality.name = undefined;
+        }
+    
+        // Initialize the new query
+        obj.selected_cube = $(obj.el).find('.cubes').val()
+            ? $(obj.el).find('.cubes').val()
+            : obj.selected_cube;
+        if (!obj.selected_cube) {
+            // Someone literally selected "Select a cube"
+            $(obj.el).find('.calculated_measures, .addMeasure').hide();
+            $(obj.el).find('.dimension_tree').html('');
+            $(obj.el).find('.measure_tree').html('');
+            return false;
+        }
+
+
+        var parsed_cube = obj.selected_cube.split('/');
+        obj.selected_cube_quality = this.get_quality_cube(parsed_cube[0]);
+        if(obj.selected_cube_quality){
+            obj.metadata = Saiku.session.sessionworkspace.cube[obj.selected_cube_quality];
+            var parsed_cube_quality = obj.selected_cube_quality.split('/');
+            var cube_quality = parsed_cube_quality[3];
+            for (var i = 4, len = parsed_cube_quality.length; i < len; i++) {
+                cube_quality += "/" + parsed_cube_quality[i];
+            }
+    
+            this.query_quality = new Query({
+                cube: {
+                    connection: parsed_cube_quality[0],
+                    catalog: parsed_cube_quality[1],
+                    schema: (parsed_cube_quality[2] == "null" ? "" : parsed_cube_quality[2]) ,
+                    name: decodeURIComponent(cube_quality)
+                }
+            }, {
+                workspace: obj
+            });
+    
+            // Save the query to the server and init the UI
+            obj.query_quality = this.query_quality;
+            obj.query_quality.save({},{ data: { json: JSON.stringify(this.query_quality.model) }, async: false });
+            obj.init_quality_query();
+        }
+    },
+
 
     extractDefaultFilters: function(p){
         var defaultfilters=[];
@@ -562,7 +621,7 @@ var Workspace = Backbone.View.extend({
 
     cancel_new_query: function(args) {
         var selectedCube = args.selected_cube;
-
+        
         args.$el.find('#cubesselect option[value="' + selectedCube + '"]').prop('selected', true);
     },
 
@@ -659,7 +718,6 @@ var Workspace = Backbone.View.extend({
             return;
         }
 
-
         // Find the selected cube
         if (this.selected_cube === undefined) {
             var schema = this.query.model.cube.schema;
@@ -701,9 +759,66 @@ var Workspace = Backbone.View.extend({
         if (typeof isNew != "undefined") {
             this.query.run(true);
         }
+
+        if (typeof isNew != "undefined" && showQuality) {
+            this.query_quality.run(true);
+        }
         Saiku.i18n.translate();
+    },
+
+    // Test if changing showQUality to true on init_query throws errors in console
+    init_quality_query: function(isNew) {
+        var self = this;
+        if (!this.selected_cube) {
+            return
+        }
+
+        var cubeModel_quality = Saiku.session.sessionworkspace.cube[this.selected_cube_quality]
+        this.dimension_list_quality = new DimensionList({
+            workspace: this,
+            cube: cubeModel_quality
+        });
+
+        if (!cubeModel_quality.has('data')) {
+            cubeModel_quality.fetch({ success: function() {
+            }});
+        }
+        if (typeof isNew != "undefined") {
+            this.query_quality.run(true);
+        }
+    },
 
 
+    get_quality_cube: function(cube_name) {
+        for(var i = 0; i < Saiku.session.sessionworkspace.connections.length; i++){
+            var connection = Saiku.session.sessionworkspace.connections[i];
+            if (connection.name === "Q-" + cube_name){
+                for (var j = 0, jLen = connection.catalogs.length; j < jLen; j++) {
+                    var catalog = connection.catalogs[j];
+            
+                    for (var k = 0, kLen = catalog.schemas.length; k < kLen; k++) {
+                      var schema = catalog.schemas[k];
+            
+                      for (var l = 0, lLen = schema.cubes.length; l < lLen; l++) {
+                        var cube = schema.cubes[l];
+            
+                        var key_quality =
+                                        connection.name +
+                                        '/' +
+                                        catalog.name +
+                                        '/' +
+                                        (schema.name === '' || schema.name === null ? 'null' : schema.name) +
+                                        '/' +
+                                        encodeURIComponent(cube.name);
+            
+                        // var qualityCube = Saiku.session.sessionworkspace.cube[key_quality];
+                      }
+                    }
+                  }
+            }
+        }
+
+        return key_quality;
     },
 
     set_class_charteditor: function() {
@@ -820,6 +935,52 @@ var Workspace = Backbone.View.extend({
 
             }
         }
+        var showQuality = false
+        if(showQuality){
+            var model_quality = this.query_quality.helper.model();
+            if (model_quality.type === "QUERYMODEL") {
+    
+                var self = this;
+                if(self.dimension_list_quality!=null){
+                    var dimlist_q = dimension_el ? dimension_el : $(self.dimension_list_quality.el);
+                }
+                else{
+                    var dimlist_q = dimension_el ? dimension_el : null;
+                }
+    
+                if (!self.isReadOnly && (!Settings.hasOwnProperty('MODE') || (Settings.MODE != "table" && Settings.MODE != "view"))) {
+                    dimlist_q.find('.selected').removeClass('selected');
+    
+                    var calcMeasures_q = self.query_quality.helper.getCalculatedMeasures();
+                    //var calcMembers = self.query.helper.getCalculatedMembers();
+    
+                    if (calcMeasures_q && calcMeasures_q.length > 0) {
+                        var template_q = _.template($("#template-calculated-measures").html(),{ measures: calcMeasures_q });
+                        dimlist_q.find('.calculated_measures').html(template_q);
+                        dimlist_q.find('.calculated_measures').find('.measure').parent('li').draggable({
+                            cancel: '.not-draggable',
+                            connectToSortable: $(self.el).find('.fields_list_body.details ul.connectable'),
+                            helper: 'clone',
+                            placeholder: 'placeholder',
+                            opacity: 0.60,
+                            tolerance: 'touch',
+                            containment:    $(self.el),
+                            cursorAt: { top: 10, left: 35 }
+                        });
+                    }
+                    else {
+                        dimlist_q.find('.calculated_measures').empty();
+                    }
+    
+                    self.drop_zones.synchronize_query();
+    
+                }
+            }
+    
+        }
+
+        
+
         Saiku.i18n.translate();
     },
 
@@ -1093,21 +1254,24 @@ var Workspace = Backbone.View.extend({
 
         $(this.el).find(".workspace_results_info").html(info);
 
-        var h = args.workspace.query.getProperty("saiku.ui.headings");
-        if(h!=undefined) {
-            var headings = JSON.parse(h);
-            var header = '';
-            if(headings.title!=null && headings.title != "") {
-                header = '<h3><span class="i18n">Title:</span></h3> &nbsp;' + headings.title + '<br/>';
+        if (Settings.REPORT_TITLES) {
+            var h = args.workspace.query.getProperty("saiku.ui.headings");
+            if(h!=undefined) {
+                var headings = JSON.parse(h);
+                var header = '';
+                if(headings.title!=null && headings.title != "") {
+                    header = '<h3><span class="i18n">Title:</span></h3> &nbsp;' + headings.title + '<br/>';
+                }
+                if(headings.variable != null && headings.variable != "") {
+                    header += '<h3><span class="i18n">Variable:</span></h3> &nbsp;' + headings.variable + '<br/>';
+                }
+                if(headings.explanation!=null && headings.explanation != "") {
+                    header += '<h3><span class="i18n">Explanation:</span></h3> &nbsp;' + headings.explanation;
+                }
+                $(this.el).find(".workspace_results_titles").html(header);
             }
-            if(headings.variable != null && headings.variable != "") {
-                header += '<h3><span class="i18n">Variable:</span></h3> &nbsp;' + headings.variable + '<br/>';
-            }
-            if(headings.explanation!=null && headings.explanation != "") {
-                header += '<h3><span class="i18n">Explanation:</span></h3> &nbsp;' + headings.explanation;
-            }
-            $(this.el).find(".workspace_results_titles").html(header);
         }
+
         this.adjust();
         Saiku.i18n.translate();
         return;
