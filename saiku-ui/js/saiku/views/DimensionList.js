@@ -238,7 +238,7 @@ var DimensionList = Backbone.View.extend({
 
     // Always add same dimensions to quality query
     if (this.workspace.query_quality) {
-      this.workspace.query_quality.run();
+      // this.workspace.query_quality.run();
     }
 
     event.preventDefault();

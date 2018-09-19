@@ -331,7 +331,6 @@ var WorkspaceDropZone = Backbone.View.extend({
   select_dimension: function(event, ui) {
     var self = this;
     // if we drop to remove dont execute the following
-
     // Trigger event when select dimension
     Saiku.session.trigger('workspaceDropZone:select_dimension', { workspace: this.workspace });
 
