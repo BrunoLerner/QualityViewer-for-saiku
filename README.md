@@ -1,3 +1,26 @@
+# Plug in to visualize quality data
+
+This is a final course project for Computer Engineering graduation at IME. Developed by Bruno Lerner & Thiago Tergolino.
+
+## What
+We created a data cube with informations about Brazil's social indicators and its Presidents over the years, and we also create a quality cube from that data cube, by calculating the correctness (deviation from normal distribution) and completeness of the data collected.
+
+As a final delivery of the project, we changed Saiku's project to add a feature that fetches a quality cube from a cube and shows the quality of data with colors.
+
+## Let me see it
+
+add screenshots
+
+
+
+
+
+
+
+
+
+
+
 <a href="#readme"></a>
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a5a3157a6798401e980a5aabe37f3ede)](https://www.codacy.com/app/Spicule/saiku?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=OSBI/saiku&amp;utm_campaign=Badge_Grade)
