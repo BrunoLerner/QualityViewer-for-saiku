@@ -122,15 +122,5 @@ var QualityModal = Modal.extend({
       self.workspace.table.render({ data: self.workspace.query.result.lastresult() });
       self.close();
     }, 500);
-    // this.renderTableWithQuality(this);
   }
-
-  // renderTableWithQuality: function(self) {
-  //   console.log(self.workspace.query_quality.result.hasRun());
-  //   if (self.workspace.query_quality.result.hasRun()) {
-  //     self.workspace.table.render({ data: self.workspace.query.result.lastresult() });
-  //     return;
-  //   }
-  //   setTimeout(this.renderTableWithQuality(self), 50);
-  // }
 });

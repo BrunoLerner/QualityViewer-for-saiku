@@ -528,29 +528,6 @@ var Workspace = Backbone.View.extend({
 
     // Receives a workspace as param
     create_new_quality_query: function(obj){
-        if (obj.query_quality) {
-            obj.query_quality.destroy();
-            obj.query_quality.clear();
-            if (obj.query_quality.name) {
-                obj.query_quality.name = undefined;
-                obj.update_caption(true);
-            }
-            obj.query_quality.name = undefined;
-        }
-    
-        // Initialize the new query
-        obj.selected_cube = $(obj.el).find('.cubes').val()
-            ? $(obj.el).find('.cubes').val()
-            : obj.selected_cube;
-        if (!obj.selected_cube) {
-            // Someone literally selected "Select a cube"
-            $(obj.el).find('.calculated_measures, .addMeasure').hide();
-            $(obj.el).find('.dimension_tree').html('');
-            $(obj.el).find('.measure_tree').html('');
-            return false;
-        }
-
-
         var parsed_cube = obj.selected_cube.split('/');
         obj.selected_cube_quality = this.get_quality_cube(parsed_cube[0]);
         if(obj.selected_cube_quality){
@@ -811,7 +788,6 @@ var Workspace = Backbone.View.extend({
                                         '/' +
                                         encodeURIComponent(cube.name);
             
-                        // var qualityCube = Saiku.session.sessionworkspace.cube[key_quality];
                       }
                     }
                   }
