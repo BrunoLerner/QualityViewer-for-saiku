@@ -38,6 +38,8 @@ bash ~/workspace/saiku/saiku-server/target/dist/saiku-server/stop-saiku.sh
 cat ~/workspace/saiku/saiku-server/target/dist/saiku-server/tomcat/logs/catalina.out
 ```
 
+5. To run the frontend by itself, go to saiku-ui/ under saiku/ and run `npm start`, it will be available in port 9999.
+
 <a href="#readme"></a>
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a5a3157a6798401e980a5aabe37f3ede)](https://www.codacy.com/app/Spicule/saiku?utm_source=github.com&utm_medium=referral&utm_content=OSBI/saiku&utm_campaign=Badge_Grade)
