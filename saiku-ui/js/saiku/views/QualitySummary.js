@@ -38,47 +38,67 @@ var QualitySummary = Backbone.View.extend({
     var self = this;
 
     var selectedMetric = this.workspace.qualitySensor.selectedQualityMetric;
-    // You can do it more generically
-    var gradienteRGB = 'linear-gradient(to left, #6be585 0%, #dd3e54 100%)';
 
-    if (selectedMetric === 'completude') {
-      beginRGB = [255, 130, 53];
-      finalRGB = [48, 232, 191];
-      gradienteRGB = 'linear-gradient(to left, #22c1c3 0%, #fdbb2d 100%)';
-    }
-    var gradient = document.createElement('div');
+    // Show quality summary
     var text = document.createElement('LABEL');
     var t = document.createTextNode(selectedMetric);
 
     text.appendChild(t);
 
-    gradient.id = 'quality-gradient';
-    gradient.style.position = 'relative';
-    gradient.style.marginTop = '10%';
-    gradient.style.marginBottom = '100%';
-    gradient.style.left = '10%';
-    gradient.style.width = '80%';
-    gradient.style.height = '30px';
-    // Change color gradient according to selected metric
-    gradient.style.background = gradienteRGB;
-
-    text.style.fontSize = '15px';
+    text.style.fontSize = '20px';
     text.style.position = 'relative';
-    text.style.left = '30%';
-
-    // Show quality summary
 
     $(this.el).html(this.template());
-
     // Show selected Metric Name
     $(this.el)
       .find('.fields_list_body')
       .append(text);
 
-    // Show color gradient
-    $(this.el)
-      .find('.fields_list_body')
-      .append(gradient);
+    if (selectedMetric === 'corretude') {
+      var biDirectionalGradient = document.createElement('div');
+
+      biDirectionalGradient.id = 'quality-gradient-left';
+      biDirectionalGradient.style.position = 'relative';
+      biDirectionalGradient.style.marginTop = '10%';
+      biDirectionalGradient.style.marginBottom = '10%';
+      biDirectionalGradient.style.left = '10%';
+      biDirectionalGradient.style.width = '80%';
+      biDirectionalGradient.style.height = '30px';
+      biDirectionalGradient.style.borderRadius = '5px';
+      biDirectionalGradient.style.background = 'linear-gradient(to left, #dd3e54 0%, #6be585 50%, #dd3e54 100%)';
+      // Show sine graph for corretude
+      var sineGraph = document.createElement('IMG');
+
+      sineGraph.setAttribute('src', 'js/saiku/plugins/qualitySensor/sine.jpg');
+      sineGraph.setAttribute('width', '100%');
+
+      $(self.el)
+        .find('.fields_list_body')
+        .append(sineGraph);
+
+      // Show color gradient
+      $(self.el)
+        .find('.fields_list_body')
+        .append(biDirectionalGradient);
+    }
+    else {
+      var gradient = document.createElement('div');
+
+      gradient.id = 'quality-gradient';
+      gradient.style.position = 'relative';
+      gradient.style.marginTop = '10%';
+      gradient.style.marginBottom = '10%';
+      gradient.style.left = '10%';
+      gradient.style.width = '80%';
+      gradient.style.height = '30px';
+      gradient.style.borderRadius = '5px';
+      gradient.style.background = 'linear-gradient(to left, #22c1c3 0%, #fdbb2d 100%)';
+
+      // Show color gradient
+      $(this.el)
+        .find('.fields_list_body')
+        .append(gradient);
+    }
 
     $(this.workspace.el)
       .find('.workspace_editor')

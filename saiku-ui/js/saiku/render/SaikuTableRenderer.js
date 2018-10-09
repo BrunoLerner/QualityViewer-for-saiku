@@ -817,7 +817,7 @@ SaikuTableRenderer.prototype.getColorFromMeasure = function(metric){
 };
 SaikuTableRenderer.prototype.renderWithQuality = function(data, workspace, options){
     var self = this;
-    var qualityColor = this.getColorFromMeasure(workspace.qualitySensor.selectedQualityMetric);
+    var gradientType = workspace.qualitySensor.selectedQualityMetric;
     if (data) {
         this._data = data;
     }
@@ -851,7 +851,7 @@ SaikuTableRenderer.prototype.renderWithQuality = function(data, workspace, optio
                 self._options['batchSize'] = 1000;
             }
 
-            var html =  self.internalRenderWithQuality(self._data, workspace, self._options, qualityColor);
+            var html =  self.internalRenderWithQuality(self._data, workspace, self._options, gradientType);
             $(self._options.htmlObject).html(html);
             // Render the totals summary
             $('#totals_summary').remove(); // Remove one previous totals div, if present
@@ -896,12 +896,12 @@ SaikuTableRenderer.prototype.renderWithQuality = function(data, workspace, optio
             return html;
         });
     } else {
-        var html =  this.internalRenderWithQuality(this._data, workspace, self._options, qualityColor);
+        var html =  this.internalRenderWithQuality(this._data, workspace, self._options, gradientType);
         return html;
     }
 }
 
-SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, workspace, options, qualityColor) {
+SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, workspace, options, gradientType) {
     var qualityData = workspace.query_quality.result.lastresult();
     var tableContent = "";
     var rowContent = "";
@@ -1230,7 +1230,7 @@ SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, works
                 if (workspace.showQuality && qualityData){
                     var qualityMatrix = qualityData.cellset;
                     if(row < qualityMatrix.length && col < qualityMatrix[0].length) {
-                        color = this.getCellQualityColor(qualityMatrix[row][col].value, qualityColor);
+                        color = this.getCellQualityColor(qualityMatrix[row][col].value, gradientType);
                     }
                 }
                 
@@ -1304,15 +1304,16 @@ SaikuTableRenderer.prototype.internalRenderWithQuality = function(allData, works
     return "<table>" + tableContent + "</tbody></table>";
 };
 
-SaikuTableRenderer.prototype.getCellQualityColor = function(val, qualityColor) {
+SaikuTableRenderer.prototype.getCellQualityColor = function(val, gradientType) {
     var style = " style='font-weight:bold;background-color: rgb(255, 255, 255)' ";
     var beginRGB = [], finalRGB = [];
-    //Green  and blue here stands actually for 2 types of gradients
-    // You can do it more generically
-    if (qualityColor === "green"){
+
+    // defines 2 types of gradiente
+    // It can be more generic
+    if (gradientType === "corretude"){
         beginRGB = [221,62,84];
         finalRGB = [107,229,133];
-    } else if(qualityColor === "blue") {
+    } else if(gradientType === "completude") {
         beginRGB = [255,130,53];
         finalRGB = [48,232,191];
     } 
